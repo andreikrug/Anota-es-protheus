@@ -1,0 +1,15 @@
+Tabelas do protheus: 
+SE1 -> Tabela do contas a receber 
+SE2 -> Tabela do conta a pagar  
+--> Geram registros de inclusões de contas a receber e a pagar 
+
+SE5 -> Gera arquivo de conta a pagar/receber quando são liquidados -> Somente vão para a SE5 se forem corretamente 
+liquidados.
+
+ZLG -> Tabela de Logs -> Armazena todas as alterações feitas, armazenando data, usuario e o tipo de alteração, podendo
+ser U de registro alterado e I de inclusão de um novo.
+Para buscar alterações nessa tabela devemos fazer uma consulta passando a consulta proveniente da tabela desejada com 
+seu RECNO
+---> SELECT * FROM ZLG010 WHERE ZLG_TABELA = 'SE1010' and ZLG_RECNO IN (SELECT R_E_C_N_O FROM SE1010 WHERE E1_PREFIXO
+= 'CPP' and E1_NUM = '001090996') 
+>>> retorna todas as alterações feitas
