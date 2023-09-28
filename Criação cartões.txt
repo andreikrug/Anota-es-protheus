@@ -1,0 +1,7 @@
+Criação cartões: 
+
+- Ir no time desejado : Nemesis
+- Acessar Backlog : 
+- Achar o sprint desejado
+- Incluir novo item, deve ter essa frase na parte de baixo do sprint
+- Atribuir descrição, time, horas e epiclink - demandas TI

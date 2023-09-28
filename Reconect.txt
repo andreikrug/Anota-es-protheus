@@ -1,0 +1,16 @@
+- Não estava conseguindo reconectar o server do vscode 
+--> Entre no mRemote, inicei o server padrão, entrei na pasta apps e iniciei o appserver 
+obs: Não sei se foi isso que fez conseguir conectar, mas deixarei anotado como possível solução
+-> Outra possivel solução: Sair do Protheus e logar dnv e/ou Sair do mRemote
+
+-- Para logar no TOTVS = User = andrei.krug -- Pass = padrão
+
+
+Conifgurações VsCode: 
+- Escolher smartClient: O: ProgramasPadrao -> TOTVS -> TotvsSmartClient12
+
+- Includes: Documentos -> Programas -> Protheus -> Outros -> Includes
+
+-- Caso dê o erro de app server
+-> Entrar no mRemote, conectar, entrar nos Tasks no pesquisar, procurar por 
+-- P11DEVAPP22 (Referente ao meu acesso atual) e verificar se o serviço está rodando, caso não, iniciar ele

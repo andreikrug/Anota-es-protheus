@@ -1,0 +1,8 @@
+Reconectar RPO:
+	- Acessar mRemote
+	- Entrar na pastar Corps, Protheus
+	- Entrar na pasta Repositorio
+	- Copiar Arquivo de apoProducao 1 e colar dentro de apoDesenv, dev22
+	- Copiar Arquivo de apoProducaoCustom e colar dentro da subpasta dentro de apoDesenv
+
+Reconectar Servico - Pode estar travado ai vamos em Details, procuramos o PID do servico e damos end tree caso esteja travado demais ou end task, que poder ser achado atraves do proprio servico.

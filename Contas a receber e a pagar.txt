@@ -1,0 +1,30 @@
+SE1 e SE2 -> contas a receber e contas pagar
+Se5 -> liquidação de ambos
+
+ZLG = armazena os logs de alterações
+U = alterado
+I = Inserido
+
+Consulta para saber alterar a liquidação do registro:
+SELECT *
+FROM SE1010
+-- UPDATE SE1010 SET e1_saldo= e1_valor, e1_baixa=' ', e1_valliq= 0, E1_STATUS='A'
+WHERE E1_PREFIXO='CPP'
+AND E1_NUM ='001097886' AND d_e_l_e_t_ =' '   ;   
+
+Consulta para o Log de uma conta a receber
+SELECT *
+  FROM ZLG010
+ where ZLG_TABELA = 'SE1010'
+   and ZLG_RECNO in (SELECT  R_E_C_N_O_
+                       FROM SE1010
+                      where E1_PREFIXO = 'CPP'
+                        and E1_NUM = '001090996')
+consulta para alterar o registro da SE5
+SELECT *
+FROM SE1010
+-- UPDATE SE1010 SET e1_saldo= e1_valor, e1_baixa=' ', e1_valliq= 0, E1_STATUS='A'
+WHERE E1_PREFIXO='CPP'
+AND E1_NUM ='001097886' AND d_e_l_e_t_ =' '   ;   
+
+CPP é contas a receber

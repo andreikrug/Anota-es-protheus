@@ -1,0 +1,25 @@
+--- Criar tabela 
+1. Abrir configurador
+2. Acessar Base Dados -> Dicionario
+3. Clicar +zinho (incluir) 
+4. Adicionar Prefixo, primeira letra sempre Z + 2 caracteres
+   ex: ZP1
+5. Adicionar PATH: \DADOSADV\    
+6. Nome da tabela: Prefixo + 010 = ZP1010 
+7. Colocar descrição
+8. Colocar compartilhado em todos 
+
+
+---- Criar Campos:
+1. Ir em campos dentro da tabela selecionada
+2. Clicar em incluir 
+3.  campos = Prefixo da tabela
+4. Escolher tipo do campo 
+   -> MEMO = Pode salvar Json, fotos e arquivos
+5. colocar tamanho, caso seja numerico, colocar decimal e formato -> (formato copiar de outros campos) -> ex: @R 999.999.999-99 // Onde 9 significa qualquer caractere numérico.
+6. contexto quase sempre real e alterar (propriedade)
+7. Acessar aba informações e adicionar titulo, apenas uma descrição, preencher tudo de informações menos o help
+8. Opções por enquanto nada, validações tbm
+9. Marcar browse em uso 
+10. Clicar em salvar e vai estar pronto 
+                       

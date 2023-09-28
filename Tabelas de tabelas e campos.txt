@@ -1,0 +1,11 @@
+SX3010 = Tabela que armazena as informações de todos os campos do protheus
+
+passa como parametro da pergunta o F3 do respectivo campo em SX3010
+
+-> Na pergunta setamos o tamanho da entrada do campo de filtro
+
+C define que vai ser do Tipo CHAR
+
+O parametro do lado do que seta o tamanho, define quantas casas decimais pode ter a entrada
+
+ifisincallStack(param) verifica se a função que está entre parenteses está sendo chamada

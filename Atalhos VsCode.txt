@@ -1,0 +1,9 @@
+shift + alt + seta (cima ou baixo) = copiar linha 
+
+alt + seta = move a linha para cima ou para baixo
+
+ctrl + shift + k = apagar linha 
+
+alt + click = pode selecionar varias palavras e alterar todas ao mesmo tempo
+
+ctrl + k + z = zen mode

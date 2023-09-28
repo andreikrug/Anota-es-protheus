@@ -1,0 +1,56 @@
+* Gatilhos ficam armazenados na tabela sx7 do dicionario de dados
+
+1. Configurador -> Bases de dados -> Gatilhos 
+2. Clicar no + zinho
+3. Campo : Campo que vai disparar o gatilho 
+4. Sequencia vem automatica
+5. Cnt Dominio : Campo que vai receber o conteudo após o gatilho ser disparado
+6. Tipo: Perguntar
+7. Regra: Colocamos o campo que queremos buscar da tabela
+  -> Ex: SB1 -> B1_DESC (sempre apontar a referencia através do alias)
+8. Alias: Colocamos a tabela 
+  -> Ex: SB1
+9. Chave: Colocamos a regra
+  -> Ex: M->B1_DESC+M->B1_COD    M = Valor que está na memória para aquele campo, nesse caso concatenamos os dois valores na memória para cada um 
+
+
+*Gatilho no fonte (codigo)
+-> Criamos uma user Function com a regra do gatilho e ao inves de passarmos a regra, passamos o nome da user function na criação do gatilho
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

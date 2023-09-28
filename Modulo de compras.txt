@@ -1,0 +1,40 @@
+Modulo de compras 
+
+SKU = unidade de manutenção de estoque
+
+Gerar nova solicitação de compra: Solicitar/Cotar -> Solicit de compras -> Selecionar o tipo de solicitação como MVM
+-> Após incluir a nova solicitação, selecionar ela e clicar em transmitir ao MVM
+
+-> Podemos receber solicitação do MVM da mesma fora
+
+ZF1 armazena informações das solicitações de compra transmitidas para o MVM, para cada solicitação é salva a filial solicitante, numero da SC e o status (pendente/finalizado/problemas no pedido)
+
+Abrindo os registros podemos identificar se há erros
+
+-No caso de uma solicitação de compra está com "Problemas no pedido" e ainda possuir o campo NUM MVM PC preenchido, isso indica que a rotina gerou um pedido compra parcial 
+
+WebService REST = Solução plannexo recebe dados do protheus durante a madrugada
+
+QTY_TRANS = Quantidade de movimentações de itens no dia: Saídas e devoluções
+
+! Conexão NFE = Sistema de gestão e importação de documentos dos tipos NFe, CTe, CCe, MDe, o qual é dividido em duas partes:
+-GEstão de documentos:Gerencia de todos os documentos da instituição
+- Importação de documentos: Protheus -> Compras ->Miscelanea -> importar xml(U_GATI001)
+-> Realiza leitura dos XML e importa os mesmos
+Tabelas Criadas: ZTZ, ZTX, ZTY, ZTT, ZTS, ZTW, ZTU
+Pontos de Entrada Alterados: MT100TOK, MT103FIM, PE_A140EXC, PE_MA103BUT, PE_MT140TOK, CHGX5FIL, M310CABEC, M310ITENS, MsDocOk
+Pontos de Entrada Incluídos: GT1CPS, GT1ITEM, GT1LGEND, GT1VALCP, A103CND2, MT100LOK, MT103CWH, MT103IP2, MTA103MNU, MT116GRV, MT140CAB, MT140LOK, MTCOLSE2
+Parâmetros Incluídos: Todos iniciados com “MV_XGT
+1680 - Geração de solicitação de compras 
+
+1473
+1631 - NFE 
+
+	
+1381 - Erro na SB5 -> Sistema não permite exclusão de de produto recém criado : Pode ocorrer caso na ROTINA MATA010 em "prod e complemento" esse parametro esteja como "NÃO"
+
+120
+
+1230 - Arquivo DMED
+
+398 - Aprovação de solicitação de compra:

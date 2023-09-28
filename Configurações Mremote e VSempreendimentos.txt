@@ -1,0 +1,8 @@
+Vs - Empreendimentos = atalhos microsiga -> Atalhos Protheus 12 - SA
+
+Criar novo serviço: 
+1. MremtoNg -> Passar o caminh, credenciais e logar
+2. Achar As pastas dentro de APPS, binario...
+-> Copiar alguma pasta já existente e altera o ini, alterando as partes onde estiver o numero do servico antigo pelo seu 
+-> Criar atalho do executavel do Ini na area de trabalho do próprio nRemote e alterar as propriedades passando - install 
+-> Caso precise remover é -remove

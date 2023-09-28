@@ -1,0 +1,13 @@
+Adicionar Rotina no menu 
+
+1. Entrar no configurador -> Cadastros -> Menus -> Escolher o menu desejado e dar OK
+
+2. Clicar em adicionar, vai carregar as pastas, clicar em sim nas abinhas que aparecem
+
+3. Novo Grupo: Para criar uma nova pasta, caso ainda não tena (não criar em produção)
+
+4. Se posicionar na pasta onde deseja criar o menu
+
+5. Clicar em novo item -> Colocar descrição -> Tipo: Escolher função de usuario -> Modulo: Plano de saude (ou outro modulo onde deseja o menu ) -> Colocar o nome da função de usuário do Códigoo fonte
+
+6. Clicar em Gerar e colocar o nome do menu conforme o nome do cantinho -> Ex:SIGAPLS

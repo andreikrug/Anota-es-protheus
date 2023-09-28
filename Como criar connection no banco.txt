@@ -1,0 +1,2 @@
+Como criar connection no banco: 
+ -> Ir na chavezinha amarela e apenas clicar nela, vai abrir a aba de configurações, as quais basta apenas passar

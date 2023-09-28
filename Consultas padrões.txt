@@ -1,0 +1,11 @@
+Acessar consultas padrão:
+1. Configurador -> Bases de dados -> Dicionario -> Consultas padrão
+2. Podemos pesquisar por uma já existente ou criar uma nova 
+3. Precisa passar a tabela da qual a consulta padrão irá tirar os dados 
+4. Precisa marcar se pode ou não habilitar inclusão, pois assim o cliente pode incluir novos itens na tabela
+5. Ao avançar novamente, devemos marcar os indices desejados que apareçam, bem como as colunas de cada indice
+6. Para incluir uma consulta padrão, basta clicar no +zinho, depois selecionamos qual coluna queremos que a consulta padrão use, após, selecionamos os indices, após selecionamos as colunas respectivas dos indices 
+7. Podemos criar filtros dentro das consultas padrões, a fim de filtrar o retorno da mesma
+
+-- Podemos Filtrar a expressão final 
+- > Aplicando clausas de restrição como: Valores dentro de determinado range e valores

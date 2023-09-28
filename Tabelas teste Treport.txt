@@ -1,0 +1,20 @@
+Perguntas podem ser criadas no protheus dentro de bases de dados
+
+zt3010 - cadastro de vendedores 
+zt2010 - cadastro de equipes
+
+relatorio que aparece as equipes e dentro dele que aparece os vendedores de cada equipe
+
+zt3_codegu
+
+
+dentro do reportDef define as seções, bem como seus campos que serão usados no relatorio
+
+
+- Funcao principal - > User Function 
+
+- Secao de apresentação dos dados 
+
+- Função de consulta sql
+
+- Função de perguntas

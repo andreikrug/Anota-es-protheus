@@ -1,0 +1,54 @@
+
+
+calculo = valor * porcentagem que é o Valor U.S (1,05) * porcentagem da coparticipação = Valor do procedimento
+
+- Chave de nível vai variar conforme o procedimento, sendo ele uma concatenção de valores relativos a beneficiario, procedimento....
+  -- > Dependendo do tipo de plano do cliente, pode ou não ter coparticipação
+-  Produto de saúde - nessa aba, podemos ver se o produto vai possuir desconto que será aplicado no procedimento
+
+- ViscoPART = Tela que recebe dados do usário e simula o valor de sua coparticipação
+
+- Faz a Guia -> Pega a chave de nível -> Acha valor da coparticipação
+
+
+Serviços = Portal PLS TISS online {1, 2, 3, 4}
+
+- COmunicação PEC com Protheus:
+ -- > Transformar liberação em autorização = No .Ini deve ter uma tag de dados do solicitante
+--> PEC manda um XML misturado com todos os dados da solicitação/Autorização e nos pontos de entrada os dados são extraidos
+
+MV -> Consulta de urgência
+
+Verificar a matricula, pois matricula pode vir a ser o campo de usuario todo?
+
+-- Retorna 5 registros da Maola
+
+// Inserindo +BD6_DIGITO na linha 741 -> Retirei isso, se der problema pode ser isso
+// Adicionado Distinct linha 360
+001712726
+003387
+
+SE1
+CPP
+
+// Relacionamento entre BEA e BE2 é feito pelo ano, mes e numAut
+ SELECT *
+          FROM BEA010 b, BE2010 a
+         where b.BEA_numaut = a.be2_numaut
+           and b.Bea_Anoaut = a.Be2_Anoaut
+           aND b.Bea_Mesaut = a.Be2_Mesaut
+
+Autorização/Liberação:  Cabeçalho(BEA), Itens (BE2)
+Internação: Cabeçalho Compartilhado(BEA e BE4), Itens (BE2 e BEJ)
+Evolução Autorização/Complemento de Internação: BQV
+
+
+
+// Linha 1121 foi concatenado Transform com 'AAA', verificar se é aquilo mesmo
+// Primeiro passo é trazer o valor da consulta e depois é conseguir criar as estruturas.
+
+// Adicionado na linha 1105
+// Linha 1065
+// 1051
+
+      
