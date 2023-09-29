@@ -1,0 +1,2395 @@
+
+#include 'protheus.ch'
+#include 'parmtype.ch'
+#include "rwmake.ch" 
+#include "ap5mail.ch"
+
+/* 
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  RL00045    ºAutor  ³Felipe Drumm    º Data ³ 14/06/2021     º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Relatório GUIAS X VLR SRP (para RCC utilizar)	    	  º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ SIGAPLS                                                    º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/ 
+  
+   
+ 
+user function RL00045 ()
+	
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Define variaveis padroes para todos os relatorios...                     ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Private xCri        := {}
+PRIVATE lGerTxt     := .F.
+Private cRelDir     := GetMv("MV_RELT")        
+PRIVATE nQtdLin
+PRIVATE cNomeProg   := "RL00045"
+PRIVATE nCaracter   := 15
+PRIVATE nLimite     := 220
+PRIVATE cTamanho    := "G"
+PRIVATE cTitulo     := "Relatorio de Movimentação"
+PRIVATE cTitDem     := "Relatorio de Movimentação"
+PRIVATE cTpPrest    := "Relatorio de Atendimento de Intercambio e SRP"
+PRIVATE cDesc1      := ""
+PRIVATE cDesc2      := ""
+PRIVATE cDesc3      := ""
+PRIVATE cAlias      := "BD7"
+PRIVATE cPerg       := PADR("RL00045", U_VSTAMSX1(), " ") 
+PRIVATE nRel        := "RL00045"
+PRIVATE m_pag       := 0
+PRIVATE lCompres    := .T.
+PRIVATE lDicion     := .F.
+PRIVATE lFiltro     := .T.
+PRIVATE lCrystal    := .F.
+PRIVATE aOrderns    := {}
+PRIVATE aReturn     := { "Zebrado", 2,"Administração", 1, 2, 1, "",1 }
+PRIVATE lAbortPrint := .F.
+PRIVATE cCabec1
+PRIVATE cCabec2 
+PRIVATE nColuna     := 00
+PRIVATE nLi         := 0
+Private cNom        := ""
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Parametros do relatorio (SX1)...                                         ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+PRIVATE nTipoImp
+PRIVATE nTipoRel
+PRIVATE nTipoDad 
+PRIVATE cCodOpe
+PRIVATE cOpeDe
+PRIVATE cOpeAte 
+PRIVATE cGrpDe
+PRIVATE cGrpAte
+PRIVATE cCtrDe
+PRIVATE cCtrAte
+PRIVATE cSubDe
+PRIVATE cSubAte
+PRIVATE cMatrDe
+PRIVATE cMatrAte
+PRIVATE cMesDe
+PRIVATE cAnoDe
+PRIVATE cMesAte
+PRIVATE cAnoAte
+PRIVATE nFase 
+PRIVATE nResumo
+PRIVATE __pMoeda := "@E 999,999.99"
+PRIVATE pTaxa    := "@E 999.99"
+PRIVATE pCopart  := "@E 9,999.99"
+Private pInss    := "@E 999.99"
+PRIVATE _pMoed2  := "@E 9,999,999.99"
+PRIVATE cQuebLDP
+PRIVATE cQuebPEG
+PRIVATE cQuebGUI
+PRIVATE cImprCan
+Private nSomNCob
+Private lPrnVlrPag	
+PRIVATE cTXT := 2
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Variaveis de mascara (picture)                                           ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+PRIVATE pMoeda      := "@E 99,999,999.99"
+
+// Concateno com o nome do relatório a data e o horário de geração.
+nRel +=  "-" + StrZero( Year( dDatabase ),4 ) + "-" + StrZero( Month( dDatabase ),2 ) + "-" + StrZero( Day( dDatabase ),2 ) +"-"+ SUBSTR( TIME(),1,2 )+ "-" + SUBSTR( TIME(),4,2 ) + "-" + SUBSTR(TIME(),7,2)
+
+CriaSX1() //nova pergunta...
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Chama SetPrint                                                           ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+nRel := SetPrint(cAlias,nRel,cPerg,@cTitulo,cDesc1,cDesc2,cDesc3,.F.,aOrderns,.T.,cTamanho,,.F.)//SetPrint(cAlias,nRel,cPerg,@cTitulo,cDesc1,cDesc2,cDesc3,lDicion,aOrderns,lCompres,cTamanho,{},lFiltro,lCrystal,,lGerTXT)
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Verifica se foi cancelada a operacao                                     ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If nLastKey  == 27
+	Return
+Endif
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Acessa parametros do relatorio...                                        ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Pergunte(cPerg,.F.)
+
+//carrega variaveis com os parametros
+nTipoImp   := 1
+nTipoRel   := 2
+nTipoDad   := 1
+cCodOpe    := '0055'    //mv_par04
+cOpeDe     := "  "      //mv_par05
+cOpeAte    := "ZZZZ"    //mv_par06
+cGrpDe     := "  "      //mv_par07
+cGrpAte    := "ZZZZ"    //mv_par08
+cCtrDe     := "  "      //mv_par09 
+cCtrAte    := "ZZZZ"    //mv_par10
+cSubDe     := "  "      //mv_par11
+cSubAte    := "ZZZZZ"   //mv_par12
+cMatrDe    := "  "      //mv_par13
+cMatrAte   := "ZZZZZ"   //mv_par14
+cMesDe     := "  "      //mv_par15
+cAnoDe     := "  "      //mv_par16
+cMesAte    := "ZZZZ"    //mv_par17
+cAnoAte    := "ZZZZ"    //mv_par18
+nFase      := 4
+cGrpOpDe   := "  "      //mv_par20
+cGrpOpAte  := "ZZZZ"    //mv_par21
+nOrd       := 2 //     2- Ordena por Nome   3- Ordena por PEG
+cCodpad    := "  "      //mv_par23
+cProcDe    := "  "      //mv_par24
+cProcAte   := "ZZZZZ"   //mv_par25
+cImprCan   := 2         //mv_par26
+nSomNCob   := 2         //mv_par27
+cGrpCob    := "  "      //mv_par28
+dDtDe      := "  "      //mv_par29
+dDtAte     := "  "      //mv_par30
+nQbrPr     := 1         //mv_par31
+dDtMovDe   := "  "      //mv_par32
+dDtMovAte  := "  "      //mv_par33
+nPercIns   := 0         //mv_par34
+cLocIni    :='  '       //mv_par35
+cLocFin    :='ZZZZ'     //mv_par36
+nTipMat    := 1
+dDatMrkPf  := " "       //mv_par38
+
+nTpErro    := 3         //mv_par39
+nSomGZer   := 2         //mv_par40
+nTipoCop   := 1         //mv_par41
+cPlaIni    := " "       //mv_par42
+cPlaFin    := " "       //mv_par43
+nConsolid  := 1         //mv_par44
+cTipoGDe   := " "       //mv_par45
+cTipoGAt   := "zzzz"    //mv_par46
+nQbrPag    := 2
+nIpasem    := 2
+cGuiGlos   := 1
+nLstBlo    := 2
+nImpTot    := 1
+lPrnVlrPag := .F.
+cPrefDe    := mv_par01
+cPrefAte   := mv_par02
+nNumTitDe  := mv_par03
+nNumTitAte := mv_par04
+dDataDe    := DTOS(mv_par06)
+dDataAte   := DTOS(mv_par07) 
+nCodInt    := SUBSTR( mv_par08, 0, 4) 
+nCodEmp    := SUBSTR( mv_par08, 5 , 4) 
+nMatric    := SUBSTR( mv_par08, 9, 6) 
+nTipreg   := SUBSTR( mv_par08, 15, 2)
+nDigito    := SUBSTR( mv_par08, 17, 1)
+cMatric
+if !Empty(nMatric)
+cMatric    := nMatric
+Else 
+cMatric := mv_par05 
+EndIf
+nNumeroNota
+ 
+
+    
+
+if nPercIns > 0
+	cCabec1     := "NRO IMPRESSO  PEG-GUIA-LOC DG        CODIGO                NOME                  DT PROC  RDA    QTD CODIGO AMB   DESC                 Valor CH     TP   Quantid.     TAX      VLR     TOTAL    "+iif(lPrnVlrPag,"VLR PAGO",Space(8))+"    % Via  V.INSS  NOTA  "
+Else
+	cCabec1     := "NRO IMPRESSO  PEG-GUIA-LOC DG        CODIGO                NOME                  DT PROC  RDA    QTD CODIGO AMB   DESC                 Valor CH     TP   Quantid.     TAX      VLR     TOTAL    "+iif(lPrnVlrPag,"VLR PAGO",Space(8))+"    % Via  NOTA"
+Endif
+cCabec2     := "NRO IMPRESSO  PEG-GUIA-LOC DG        CODIGO                NOME                  DT PROC  RDA       QTD     CODIGO    DESC             TAX      FILME      TOTAL      % Via"
+
+if nQbrPr == 2 
+	nOrd := 1  
+Endif 
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Configura Limite de linhas                                               ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If nTipoImp == 1
+	nQtdLin := 48
+	@nLi,0 PSAY AvalImp(nLimite)
+Else
+	nQtdLin := 58
+	@nLi,0 PSAY Chr(15)
+Endif
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Configura impressora                                                     ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If  lGerTXT
+	SetPrintFile(nrel)
+EndIF
+SetDefault(aReturn,cAlias)
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Emite relat¢rio                                                          ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If  lGerTxt
+	RIntImp()
+Else
+	MsAguarde({|| RIntImp() }, cTitulo, "", .T.)
+Endif
+If Len(xCri) > 0
+	PLSCRIGEN(xCri,{ {" Local Dig. ","@C",04},{"  Peg   ","@C",08},{"  Guia  ","@C",08},{" Procedimento ","@C",50}, {" Composição ","@C",40},{" Tipo RDA ","@C",30},{" Problema ","@C",50}}, " Critica ")
+EndIf
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Libera filtro feito no arquivo BD7...                                    ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+ms_flush()
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Fim da rotina                                                            ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Return()
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Programa   ?RIntImp  ?Autor ?DAVID DE OLIVEIRA     ?Data ?08.08.05 ³±?
+±±ÃÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descricao  ?RELATÓRIO DE MOVIMENTAÇÃO DE INTERECAMBIO        .         ³±?
+±±ÀÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+/*/
+Static Function RIntImp()
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?IndRegua...                                                              ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+LOCAL cSQL
+Local cCodPro     := ""
+LOCAL nVlrTotGui  := 0
+LOCAL nVlrGuiaTot := 0
+Local nPdaGuiaTot := 0
+LOCAL nVlrTotNot  := 0
+LOCAL nVlrTotTax  := 0
+LOCAL nITens      := 0
+LOCAL aGuiasImp   := {}
+Local nVlrRef     := 0
+Local nVlrGRef    := 0
+Local nVlrPRef    := 0
+Local nVlrTotPro  := 0
+Local aProcImp    := {}
+Local lListaCab   := .F., lFirst := .T.
+Local nTotRec
+Local nQtdePro    := 1
+Local i           := 0
+Local cLinha      := ""
+Local CNPJEmp     := ""
+lOCAL RdaExec     := ""
+Local nTotal      := 0
+Local nValorTot   := 0
+Local cDesEsp     := ""
+Local cCodEsp     := ""
+Local aDados      := {}
+Private nQtdRec
+Private nQtdGui
+Private nQtdGTot  := 0
+Private aQtdGui
+PRIVATE nVlrItem  := 0
+PRIVATE nVlrTax   := 0
+PRIVATE cBloq
+Private nVlrBloq  := 0
+PRIVATE nVlrFil   := 0
+PRIVATE aResumo   := {}
+PRIVATE aResTot   := {}
+PRIVATE cLast     := ""
+PRIVATE cLastGui  := ""
+PRIVATE cLastFam  := ""
+PRIVATE cInicio   := ""
+PRIVATE nlinha    := 1
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Controle de Glosas...                                                    ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+PRIVATE aGlosas   := {}
+PRIVATE lGlosou   := .F.
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Totalizadores...                                                         ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+PRIVATE nQtd      := 0
+PRIVATE nVlrGlo   := 0
+PRIVATE nVlrPag   := 0
+PRIVATE nVlrTot   := 0
+PRIVATE nVlrIRF   := 0
+PRIVATE cQuebOp     := 0
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?variaveis de trabalho...                                                 ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+PRIVATE cNomUsr    //Nome do usuario que fez o procedimento...
+PRIVATE cNomOp     //Nome da Operadora...
+PRIVATE cMovime    //Codigo do movimento
+PRIVATE cMatUsr
+PRIVATE cUsu
+
+PRIVATE nAux         := 0
+PRIVATE cMatMed
+PRIVATE cProcedi
+PRIVATE cCopartic    := ""
+
+private cCodRda      := ""
+Private cTipRda      := ""
+private cNroImpresso := ""
+Private lIpasem      := .F.
+Private lTemAMB      := .F.
+Private cCdtbAMB     := ""
+Private cCdpcAMB     := ""
+Private aTits        :={""}
+Private cConEmp := ""
+Private cParamRDA    := GetNewPar("MV_PLSRDA","UIN,UEE,CLI")
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Exibe mensagem...                                                        ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+If  ! lGerTxt
+	MsProcTxt("Selecionando Dados")
+Endif
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Monta novo nome do titulo do relatorio mostrando mes/ano                 ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+cTitulo := AllTrim(cTitulo)+space(01)+Iif(nTiporel=1,"Intercambio","SRP")//+" - "+PLRETMES(Val(cMes))+"/"+cAno
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Define Ordens Default...                                                 ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+BA1->(DbSetOrder(2))
+
+/*
+"Prefixo Titulo","mv_par01"
+"Numero Titulo De","mv_par02"
+"Numero Titulo Ate","mv_par53"
+"Parcela","mv_par54"
+"Tipo de Titulo","mv_par55"
+"Lote de Cobrança De","mv_par56" 
+"Lote de Cobrança Ate","mv_par57"
+*/  
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Seleciono títulos a serem processados....                                ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+if nSomNCob <> 1 // Somente Nao Cobradas
+    if !Empty(mv_par08) .and. !Empty(dDataDe) .and. !Empty(dDataAte)// Se informar o usuario - carteirinha - Teste validado e está funcionando conforme esperado
+       cQrSe1 := "SELECT DISTINCT SE1.e1_prefixo, SE1.e1_num, SE1.e1_parcela, SE1.e1_tipo "
+	   cQrSe1 += " FROM BM1010 BM1, SE1010 SE1 "
+	   cQrSe1 += " WHERE  BM1.BM1_FILIAL = '  '"
+	   cQrSe1 += " AND SE1.D_E_L_E_T_ = ' '" 
+	   cQrSe1 += " AND SE1.E1_FILIAL = BM1.BM1_FILIAL "
+	   cQrSe1 += " AND SE1.E1_PREFIXO = BM1.BM1_PREFIX "
+	   cQrSe1 += " AND SE1.E1_NUM = BM1.BM1_NUMTIT "
+	   cQrSe1 += " AND SE1.E1_PARCELA = BM1.BM1_PARCEL "
+	   cQrSe1 += " and BM1.bm1_codint = '"+nCodInt+"'"
+	   cQrSe1 += " and BM1.bm1_codemp = '"+nCodEmp+"'" 
+	   cQrSe1 += " and BM1.bm1_matric = '"+nMatric+"'"
+	   cQrSe1 += " and BM1.bm1_tipreg = '"+nTipreg+"'"  
+	   cQrSe1 += " and BM1.bm1_digito = '"+nDigito+"'"
+	   cQrSe1 += " and SE1.e1_emissao >= '"+dDataDe+"' and SE1.e1_emissao <= '"+dDataAte+"'
+	   cQrSe1 += " and BM1.D_E_L_E_T_ = ' '"
+	   PlsQuery(cQrSe1,"TSE1")
+		if !TSE1->(Eof())
+			aTits := {}
+			While !TSE1->(Eof())
+				aadd(aTits,TSE1->(E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO))
+				TSE1->(dbSkip())
+			Enddo
+		Endif
+		TSE1->(dbCloseArea()) 
+	   
+    Else   
+	  if !Empty(cPrefDe) //Se informar o prefixo do titulo...
+		cQrSe1 := "select e.e1_prefixo, e.e1_num, e.e1_parcela, e.e1_tipo" 
+		cQrSe1 += " from se1010 e"
+		cQrSe1 += " where e.e1_filial = '  '"
+		cQrSe1 += " and e.e1_prefixo >= '"+cPrefDe+"' AND e.e1_prefixo <= '"+cPrefAte+"'
+		if !Empty(nNumTitDe) .and. !Empty(nNumtitAte)
+		 cQrSe1 += " and e.e1_num >= '"+nNumTitDe+"' AND e.e1_num <= '"+nNumTitAte+"'
+		ElseIf !Empty(nNumTitDe)
+		 cQrSe1 += " and e.e1_num  = '"+nNumTitDe+"'
+		EndIf
+		cQrSe1 += " and e.e1_codint  = '"+cCodOpe+"'"
+		cQrSe1 += " and e.e1_codemp  between '"+cGrpDe+"' and '"+cGrpAte+"'"
+		cQrSe1 += " and e.e1_conemp  between '"+cCtrDe+"' AND '"+cCtrAte+"'"
+		cQrSe1 += " and e.e1_subcon  between '"+cSubDe+"' AND '"+cSubAte+"'"
+		cQrSe1 += " and e.e1_matric  between '"+cMatrDe+"' AND '"+cMatrAte+"'"	 
+		cQrSe1 += " and e.d_e_l_e_t_ = ' '"
+		// if !Empty(dDataDe) .and. !Empty(dDataAte)
+		//  cQrSe1 += " and e.e1_emissao >= '"+dDataDe+"' and e.e1_emissao <= '"+dDataAte+"'
+		// Endif  
+		PlsQuery(cQrSe1,"TSE1")
+		 if !TSE1->(Eof())
+			aTits := {}
+			While !TSE1->(Eof())
+				aadd(aTits,TSE1->(E1_PREFIXO+E1_NUM+E1_PARCELA+E1_TIPO))
+				TSE1->(dbSkip())
+			Enddo
+		 Endif
+		 TSE1->(dbCloseArea()) 
+		 
+	  Endif 		
+    Endif
+
+Endif
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Monto Array de Resumo total do processamento...
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	
+	aadd(aResTot,{"Serviços Médicos",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResTot,{"Meios Proprios  ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResTot,{"Unimed          ",0,0,0,0,0,0,0,0,0,0,0})
+  	aadd(aResTot,{"Hospitais       ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResTot,{"Laboratorios    ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResTot,{"Clinicas        ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResTot,{"Unimed          ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResTot,{"Outros Atos     ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResTot,{"Total           ",0,0,0,0,0,0,0,0,0,0,0})
+
+For i := 1 to Len(aTits)
+
+	cNumTit := aTits[i]
+	cQueb	 := ""
+
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//?Seleciona as pegs a serem impressas
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	cSQL := "SELECT BD6_FASE, BD6_PREFIX , BD6_NUMTIT, BD6_PARCEL, BD6_TIPTIT, BD6_CODOPE, BD6_OPEORI, BD6_NOMUSR, BD6_CODLDP, BD6_CODPEG, BD6_NUMERO, BD6_CODPAD, BD6_CODPRO, BD6_VLRPF, BD6_VLRTAD, BD6_BLOCPA, BD6_MOTBPF, BD6_RDAEDI, BD6_NOMEDI, "
+	cSQL += "BD6_OPEUSR, BD6_CODEMP, BD6_CONEMP, BD6_VERCON, BD6_SUBCON, BD6_VERSUB, BD6_CODPLA,BD6_MATRIC, BD6_TIPREG, BD6_DIGITO ,BD6_MATUSA, BD6_DATPRO, BD6_HORPRO,BD6_REGEXE, BD6_ORIMOV, BD6_CODRDA, BD6_QTDPRO, "
+	cSQL += "BD6_VLRTPF, BD6_VLRBPF, BD6_TPPF, BD6_ANOPAG, BD6_MESPAG, BD6_SEQUEN, BD6_MATANT,BD6_PERVIA, BD6_CODLOC, BD6_NUMIMP, BD6_CODPRO,BD6_NRAEMP "
+	cSQL += "FROM "+RetSQLName("BD6")+IIF(!Empty(cGrpCob) .and. (nTipoGrupo == 2)," BD6, "+RetSQLName("BQC")," BD6")
+    //Somente Guias Zeradas == Não
+	if nSomGZer == 2
+		// Somente Nao CobradasF
+		If nSomNCob == 1 
+//			cSQL += "   AND BDH.BDH_STATUS = '1' "
+			if nConsolid == 1
+				cSQL += ", "+RetSQLName("BDH")+" BDH WHERE "
+				cSQL += "   BDH_FILIAL = '"+xFilial("BDH")+"' "				
+				cSQL += "   AND BDH.D_E_L_E_T_ = ' ' "
+				cSQL += "   AND BD6.BD6_OPEUSR = BDH.BDH_CODINT "
+				cSQL += "   AND BD6.BD6_CODEMP = BDH.BDH_CODEMP "
+				cSQL += "   AND BD6.BD6_MATRIC = BDH.BDH_MATRIC "
+				cSQL += "   AND BD6.BD6_TIPREG = BDH.BDH_TIPREG "
+				cSQL += "   AND BD6.BD6_SEQPF  = BDH.BDH_SEQPF "
+				cSQL += "   AND BD6.BD6_ANOPAG = BDH.BDH_ANOFT "
+				cSQL += "   AND BD6.BD6_MESPAG = BDH.BDH_MESFT "
+			
+				cSQL += " AND BD6.BD6_PREFIX = '   ' "
+				cSQL += " AND BD6.BD6_NUMTIT = '         ' "
+				cSQL += " AND BD6.BD6_PARCEL = ' ' "
+				cSQL += " AND BD6.BD6_TIPTIT = '   ' "
+			
+			else
+				cSQL += "   WHERE BD6.BD6_PREFIX = '   ' "
+				cSQL += "     AND BD6.BD6_NUMTIT = '         ' "
+				cSQL += "     AND BD6.BD6_PARCEL = ' ' "
+				cSQL += "     AND BD6.BD6_TIPTIT = '   ' "
+			
+			endif
+		// Somente Cobradas
+		ElseIf nSomNCob == 2 
+			cSQL += ", "+RetSQLName("BDH")+" BDH WHERE "
+			cSQL += " BDH.BDH_FILIAL = '"+xFilial("BDH")+"'"
+			cSQL += "   AND BDH.BDH_CODINT = '"+cCodOpe+"' "
+		
+			cSQL += "   AND BDH.BDH_STATUS = '0' "
+			//Caso o usuário não digite o título, faço a busca em toda base
+			if Empty(cNumTit)
+				cSQL += "   AND BDH.BDH_PREFIX > '   ' "
+				cSQL += "   AND BDH.BDH_NUMTIT > '         ' "
+				cSQL += "   AND BDH.BDH_TIPTIT > '   ' "
+			Else
+				cSQL += "   AND BDH.BDH_PREFIX = '"+SUBSTR(cNumTit,1,3)+"' "
+				cSQL += "   AND BDH.BDH_NUMTIT = '"+SUBSTR(cNumTit,4,9)+"' "
+				cSQL += "   AND BDH.BDH_TIPTIT= '"+SUBSTR(cNumTit,16,3)+"' "
+			    cSQL += "   AND BDH.BDH_PARCEL = '"+SUBSTR(cNumTit,13,3)+"' "
+			Endif
+			
+			cSQL += "   AND BDH.D_E_L_E_T_ = ' ' "
+			cSQL += "   AND BD6.BD6_OPEUSR = BDH.BDH_CODINT "
+			cSQL += "   AND BD6.BD6_CODEMP = BDH.BDH_CODEMP "
+			cSQL += "   AND BD6.BD6_MATRIC = BDH.BDH_MATRIC "
+			cSQL += "   AND BD6.BD6_TIPREG = BDH.BDH_TIPREG "
+			cSQL += "   AND BD6.BD6_SEQPF  = BDH.BDH_SEQPF "
+			cSQL += "   AND BD6.BD6_ANOPAG = BDH.BDH_ANOFT "
+			cSQL += "   AND BD6.BD6_MESPAG = BDH.BDH_MESFT "
+			
+		Endif 
+		
+		if !empty(cMatric)
+		 	cSQL += "   AND BD6.BD6_MATRIC = '"+cMatric+"' 
+		 endif 			
+	
+    //Somente Guias Zeradas == Sim
+	Else
+		// Somente Nao Cobradas
+		If nSomNCob == 1 
+			cSQL += "   WHERE BD6.BD6_PREFIX = '   ' "
+			cSQL += "     AND BD6.BD6_NUMTIT = '         ' "
+			cSQL += "     AND BD6.BD6_PARCEL = ' ' "
+			cSQL += "     AND BD6.BD6_TIPTIT = '   ' "
+			if !empty(cMatric)
+				cSQL += "   AND BD6.BD6_MATRIC = '"+cMatric+"'
+			endif 	
+		// Somente Cobradas
+		ElseIf nSomNCob == 2 
+			//Caso o usuário não digite o título, faço a busca em toda base
+			if Empty(cNumTit)
+				cSQL += "   WHERE BD6.BD6_PREFIX > '   ' "
+	 			cSQL += "   AND BD6.BD6_NUMTIT > '         ' "
+				cSQL += "   AND BD6.BD6_TIPTIT > '   ' "
+				if !empty(cMatric)
+					cSQL += "   AND BD6.BD6_MATRIC = '"+cMatric+"' 
+				endif 	
+			Else
+				cSQL += "   WHERE BD6.BD6_PREFIX = '"+SUBSTR(cNumTit,1,3)+"' "
+				cSQL += "   AND BD6.BD6_NUMTIT = '"+SUBSTR(cNumTit,4,9)+"' "
+				cSQL += "   AND BD6.BD6_PARCEL = '"+SUBSTR(cNumTit,13,3)+"' "
+				cSQL += "   AND BD6.BD6_TIPTIT = '"+SUBSTR(cNumTit,16,3)+"' "
+				if !empty(cMatric)
+				   cSQL += "   AND BD6.BD6_MATRIC = '"+cMatric+"' 
+				endif 	
+			Endif
+		Endif
+		
+	Endif
+	
+	cSQL += "   AND BD6.D_E_L_E_T_ = ' ' AND "
+	cSQL += "   BD6_FILIAL = '"+xFilial("BD6")+"' AND "
+	cSQL += "   BD6_CODOPE BETWEEN '"+cCodOpe+"' AND '"+cCodOpe+"' AND "
+	cSQL += "   BD6_CODLDP BETWEEN '"+cLocIni+"' AND '"+cLocFin+"' AND "  
+	If !Empty(cCodpad)
+		cSQL += "   BD6_CODPAD ='"+cCodpad+"' AND "
+	EndIf
+	
+	//| Senão eu coloco na query |
+	if nSomGZer == 1
+		cSQL += " BD6.BD6_VLRTPF = 0 AND "
+		
+	else
+		cSQL += " BD6.BD6_VLRTPF > 0 AND "
+	
+	endif
+
+	
+	//| Caso eu analise a data de marcação, desconsidero a análise de guia zerada |
+	if !empty(dDatMrkPf)
+		cSQL += "   BD6_YDTCOB ='"+dtos(dDatMrkPf)+"' AND "
+
+	endif
+	
+	cSQL += "   BD6_CODPRO BETWEEN '"+cProcDe+"' AND '"+cProcAte+"' AND "
+		
+	// Imprime Somente Guias do Grupo de Cobranca
+	If  !Empty(cGrpCob) .and. (nTipoGrupo == 2) 
+		cSQL += "BQC_FILIAL = '" + xFilial("BQC") + "' AND "
+		cSQL += "BQC_CODIGO = BD6_OPEUSR || BD6_CODEMP AND "
+		cSQL += "BQC_NUMCON = BD6_CONEMP AND "
+		cSQL += "BQC_VERCON = BD6_VERCON AND "
+		cSQL += "BQC_SUBCON = BD6_SUBCON AND "
+		cSQL += "BQC_VERSUB = BD6_VERSUB AND "
+		cSQL += "BD6_OPEUSR = '" + PLSIntPad() + "' AND "
+		cSQL += "BQC_GRPCOB = '" + cGrpCob + "' AND "
+		cSQL += "(BD6_BLOCPA <> '1'  OR (BD6_BLOCPA = '1' AND BD6_MOTBPF = '982')) AND "
+		cSQL += RetSQLName("BQC")+".D_E_L_E_T_ = ' ' AND "
+	Endif
+	
+	// Imprime Somente Guias Ativas
+	if cImprCan == 1 
+		cSQL += "BD6_SITUAC = '1' AND "
+	Endif
+	
+	
+	//Intercâmbio
+	If nTipoRel == 1
+		cSQL += "BD6_OPEORI >= '"+cOpeDe+"' AND BD6_OPEORI <= '"+cOpeAte+"' AND "
+		cSQL += "BD6_INTERC = '1' AND "
+		cSQL += "BD6_OPEORI <> '"+cCodOpe+"' AND "
+	//SRP
+	Else
+		cSQL += "BD6_OPEUSR = '" + PLSIntPad() + "' AND "
+		cSQL += "BD6_CODEMP BETWEEN '"+cGrpDe+"' AND '"+cGrpAte+"' AND "
+		cSQL += "BD6_CONEMP BETWEEN '"+cCtrDe+"' AND '"+cCtrAte+"' AND "
+		cSQL += "BD6_SUBCON BETWEEN '"+cSubDe+"' AND '"+cSubAte+"' AND "
+		cSQL += "BD6_MATRIC BETWEEN '"+cMatrDe+"' AND '"+cMatrAte+"' AND "
+		//cSQL += " BD6_DIGITO = '"+nDigito+"' AND " 	
+	EndIf
+	        
+	//Tipo de Guia Final 
+	if !Empty(cTipoGAt)
+	    cSql += " BD6_TIPGUI >= '"+cTipoGDe+"' AND "
+	    cSql += " BD6_TIPGUI <= '"+cTipoGAt+"' AND "
+	Endif
+	
+	If nFase == 1 //Digitação
+		cSQL += "BD6_FASE = '1' AND "
+	ElseIf nFase == 2 //Conferencia
+		cSQL += "BD6_FASE = '2' AND "
+	ElseIf nFase == 3 //Pronta
+		cSQL += "BD6_FASE = '3'  AND "
+	ElseIf nFase == 4 //Faturada/Pronta PADU
+		cSQL += "(BD6_FASE >= '3' ) AND "
+	ElseIf nFase == 5 //Faturada
+		cSQL += "(BD6_FASE = '4' ) AND "
+	EndIF
+	
+	if !Empty(cPlaFin)
+		cSQL += " BD6_CODPLA >= '"+cPlaIni+"' AND "
+		cSQL += " BD6_CODPLA <= '"+cPlaFin+"' AND "
+	Endif
+	
+	if nLstBlo == 1 //Cobrança Bloqueada
+		cSQL += "BD6_BLOCPA = '1' AND "
+	Else
+		cSQL += "(BD6_BLOCPA <> '1'  OR (BD6_BLOCPA = '1' AND BD6_MOTBPF = '982')) AND "
+	Endif
+	cSQL += "BD6.D_E_L_E_T_ = ' ' "
+
+	// VERIFICO POR GUIAS GLOSADAS - CHAMADO 7553 MAXIMO
+	if cGuiGlos == 2
+		cSQL += "AND NOT EXISTS( SELECT R_E_C_N_O_ FROM "+RetSQLName("BDX")+" "
+		cSQL += "WHERE BDX_FILIAL = '"+xFilial("BDX")+"'"
+		cSQL += "  AND BDX_CODOPE = BD6_CODOPE"
+		cSQL += "  AND BDX_CODLDP = BD6_CODLDP"
+		cSQL += "  AND BDX_CODPEG = BD6_CODPEG"
+		cSQL += "  AND BDX_NUMERO = BD6_NUMERO"
+		cSQL += "  AND BDX_CODPAD = BD6_CODPAD"
+		cSQL += "  AND BDX_CODPRO = BD6_CODPRO"
+		cSQL += "  AND BDX_ACAO   <> '2'"  
+		cSQL += "  AND D_E_L_E_T_ = ' ')"
+	Endif
+	if !empty(cMatric)
+		cSQL += "   AND BD6_MATRIC = '"+cMatric+"' 
+	endif 	
+    
+    if !Empty(dDataDe) .and. !Empty(dDataAte)
+		cSQL += "   AND BD6_DATPRO >= '"+dDataDe+"' and BD6_DATPRO <= '"+dDataAte+"'
+	endif
+    //Intecâmbio
+	If nTipoRel == 1 
+		Do Case 
+			Case nOrd = 1
+				cSQL += "ORDER BY BD6_OPEORI, BD6_MATANT "
+			Case nOrd = 2
+				cSQL += "ORDER BY BD6_OPEORI, BD6_NOMUSR, BD6_CODLDP, BD6_CODPEG, BD6_NUMERO "
+			Case nord = 3
+				cSQL += "ORDER BY BD6_CODLDP, BD6_CODPEG, BD6_NUMERO, BD6_OPEORI "//"ORDER BY BD6_OPEORI, BD6_CODPEG, BD6_NUMERO " ALTERADO PARA ATENDER A ORDENAÇÃO ATRAVES DO CHAMADO 10003291
+			Case nord = 4
+				cSQL += "ORDER BY BD6_OPEORI, BD6_NUMIMP "
+		EndCase
+
+	//SRP
+	Else
+		Do Case
+			Case nOrd = 1
+				cSQL += "ORDER BY BD6_CODEMP, BD6_SUBCON, BD6_MATRIC, BD6_TIPREG, BD6_DIGITO  "
+			Case nOrd = 2
+				cSQL += "ORDER BY BD6_CODEMP, BD6_SUBCON, BD6_NOMUSR, BD6_NUMIMP, BD6_CODLDP, BD6_CODPEG, BD6_NUMERO "
+			Case nord = 3
+				cSQL += "ORDER BY BD6_CODLDP, BD6_CODPEG, BD6_NUMERO,BD6_CODEMP, BD6_SUBCON "//"ORDER BY BD6_CODEMP, BD6_SUBCON, BD6_CODPEG, BD6_NUMERO  " ALTERADO PARA ATENDER A ORDENAÇÃO ATRAVES DO CHAMADO 10003291
+			Case nord = 4
+				cSQL += "ORDER BY BD6_CODEMP, BD6_NUMIMP, BD6_CODPEG, BD6_NUMERO  "
+		EndCase
+	EndIf 
+	
+	PLSQUERY(cSQL,"TrbOp")
+	
+	nTotRec := TrbOp->(RECCount())
+	//Zero totais
+	nQtdRec := 0
+	aQtdGui := {} 
+	nQtdGui := 0
+	
+	MsProcTxt("Gerando Relatório") 
+
+	//COMPOSIÇÃO DOS EVENTOS
+	DbSelectArea("BD7")
+	BD7->(DbSetOrder(1))
+	//PRESTADORES
+	DbSelectArea("BAU")
+	BAU->(DbSetOrder(1))
+	//OPERADORAS
+	DbSelectArea("BA0")
+	BA0->(DbSetOrder(1))
+	//Arquivo de Faturamento 
+	DbSelectArea("BDH")
+	BDH->(DbSetOrder(1))
+	
+	//Monta Resumo do Final da Página Zerado
+	
+	aadd(aResumo,{"Serviços Médicos",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResumo,{"Meios Proprios  ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResumo,{"Unimed          ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResumo,{"Hospitais       ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResumo,{"Laboratorios    ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResumo,{"Clinicas        ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResumo,{"Unimed          ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResumo,{"Outros Atos     ",0,0,0,0,0,0,0,0,0,0,0})
+	aadd(aResumo,{"Total           ",0,0,0,0,0,0,0,0,0,0,0})
+	@nLi,0 PSAY Chr(15)
+	lPrimUFm := .T. 
+	BB8->(DbSetOrder(1))
+	BD1->(DbSetOrder(1))
+	BA1->(DbSetOrder(2))
+	BAU->(DbSetOrder(1))
+	aCPEmp := {}
+
+	IF !TrbOp->(Eof()) 
+		cConEmp := TrbOp->(BD6_CONEMP)
+	ENDIF
+
+	While !TrbOp->(Eof())
+	 
+		
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//?Busca nome do usuario do item posicionado...                       ?
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		If BA1->(DbSeek(xFilial("BA1")+TRBOP->(BD6_OPEUSR+BD6_CODEMP+BD6_MATRIC+BD6_TIPREG)))
+			cNomUsr := Subs(TRBOP->BD6_NOMUSR,1,20)//Subs(BA1->BA1_NOMUSR,1,25)
+			nNumeroNota := TRBOP->(BD6_PREFIX+" "+BD6_NUMTIT+" "+BD6_PARCEL+" "+BD6_TIPTIT)
+		Else
+			cNomUsr := Space(20)
+			nNumeroNota := TRBOP->(BD6_PREFIX+" "+BD6_NUMTIT+ " " +BD6_PARCEL+ " "+BD6_TIPTIT)
+		Endif
+		
+		if (nPos := aScan(aCPEmp, {|x| AllTrim(x[1]) == AllTrim(TrbOp->(BD6_CODOPE+BD6_CODEMP+BD6_CONEMP+BD6_VERCON+BD6_SUBCON+BD6_VERSUB+BD6_CODPLA)+BA1->BA1_VERSAO)})) == 0
+			MsProcTxt("Verifica Valorizacao da Empresa/Sub/Produto..")
+			ProcessMessages()
+			aadd(aCPEmp,{TrbOp->(BD6_CODOPE+BD6_CODEMP+BD6_CONEMP+BD6_VERCON+BD6_SUBCON+BD6_VERSUB+BD6_CODPLA)+BA1->BA1_VERSAO,{VerCOEmp(TrbOp->(BD6_CODOPE+BD6_CODEMP+BD6_CONEMP+BD6_VERCON+BD6_SUBCON+BD6_VERSUB+BD6_CODPLA)+BA1->BA1_VERSAO)}})
+			nPos := Len(aCPEmp)
+		Endif
+		
+		MsProcTxt("Guia "+strZero(nQtdRec,6))
+		ProcessMessages()
+		
+		// Quebra de página por contrato - AJUSTE GRUPO EMPRESA
+		IF TrbOp->(BD6_CONEMP) != cConEmp 
+			RIntPag(.F., cTitulo, .F., .T.,aResumo)
+			cConEmp := TrbOp->(BD6_CONEMP)
+		endif
+
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//?Verifica se vai imprimir o procedimento .. se ele esta com problemas ou nao?
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		if nTpErro <= 2 // Somente quando nao for todos que faco a verificacao
+			If BD7->(MsSeek(xFilial("BD7")+"0055"+TRBOP->(BD6_CODLDP+BD6_CODPEG+BD6_NUMERO+BD6_ORIMOV+BD6_SEQUEN)))
+				BAU->(MsSeek(xFilial("BAU")+BD7->BD7_CODRDA))
+				While ! BD7->(Eof()) .And. BD7->(BD7_CODLDP+BD7->BD7_CODPEG+BD7->BD7_NUMERO+BD7->BD7_ORIMOV+BD7_SEQUEN) ==;
+					TRBOP->(BD6_CODLDP+BD6_CODPEG+BD6_NUMERO+BD6_ORIMOV+BD6_SEQUEN)
+					if nTpErro == 1 // Somente com Erro
+						__lSai := VerifGuia(aCPEmp[nPos,2,1],BAU->BAU_TIPPRE,BD7->BD7_CODPRO,BD7->BD7_COEFPF,noRound((BD7->BD7_VLRTAD*100)/BD7->BD7_VLRBPF,2),BD7->BD7_DATPRO,BD7->BD7_TPCOPF) .And. (BD7->BD7_VLRTPF > 0 .OR. BD7->BD7_BLOPAG == "1")
+						if !__lSai
+							Exit
+						Endif
+					Else // Somente OK
+						__lSai := ! (VerifGuia(aCPEmp[nPos,2,1],BAU->BAU_TIPPRE,BD7->BD7_CODPRO,BD7->BD7_COEFPF,Round((BD7->BD7_VLRTAD*100)/BD7->BD7_VLRBPF,2),BD7->BD7_DATPRO,BD7->BD7_TPCOPF) .And. (BD7->BD7_VLRTPF > 0 .OR. BD7->BD7_BLOPAG == "1"))
+						if __lSai
+							Exit
+						Endif
+					Endif
+					BD7->(DbSkip())
+				Enddo
+			Endif
+		Else
+			__lSai := .F.
+		Endif
+		
+		if __lSai
+			TRBOP->(DbSkip())
+			Loop
+		Endif
+		
+		nTpcps := 0
+		if (dDatabase - TRBOP->BD6_DATPRO) < 240
+			nTpcps := 2
+		Elseif dtoc(BA1->BA1_DATBLO) == "  /  /  " .OR. (dDatabase - BA1->BA1_DATBLO) < 180
+			nTpcps := 3
+		Elseif dtoc(BA1->BA1_DATBLO) <> "  /  /  " .And. (dDatabase - BA1->BA1_DATBLO) >= 180
+			nTpcps := 4
+		Endif
+		
+		if nTipoCop > 1 // Todos
+			if 	nTpcps <> nTipoCop
+				TRBOP->(DbSkip())
+				Loop
+			Endif
+		Endif
+		
+		/*if nDiaFilt > 0 
+			if !(dDatabase - TRBOP->BD6_DATPRO) >= nDiaFilt
+				TRBOP->(DbSkip())
+				Loop
+			Endif
+		Endif*/
+		
+		BD7->(dBgOTOP())
+		
+		_lPadu := .F.
+		if BB8->(DbSeek(xFilial("BB8")+TrbOp->(BD6_CODRDA+BD6_CODOPE+BD6_CODLOC)))
+			if BD1->(DbSeek(xFilial("BD1")+BB8->BB8_CODINT+BB8->BB8_LOCAL))
+				_lPadu := (BD1->BD1_YTPLOC == "1" .And. BD1->BD1_TIPO == "06")
+			Endif
+		Endif
+		
+		if !_lPadu .And. nFase == 4
+			If !(TRBOP->BD6_FASE $ "3,4")
+				TRBOP->(DbSkip())
+				Loop
+			Endif
+		Elseif _lPadu .And. nFase == 4
+			If TRBOP->BD6_FASE < "3"
+				TRBOP->(DbSkip())
+				Loop
+			Endif
+		Endif
+
+		//zera vaiaveis para nova guia
+		cQueb	     := Iif(nTipoRel==1,TrbOp->BD6_OPEORI,TrbOp->(BD6_CODEMP+BD6_CONEMP+BD6_VERCON+BD6_SUBCON+BD6_VERSUB))
+		nVlrTotGui  := 0
+		//nVlrTotNot  := 0
+		nITens      := 0
+		nVlrRef     := 0
+		nVlrItem    := 0
+		nVlrtax     := 0
+		nVlrGRef    := 0
+		nVlrPRef    := 0
+		nVlrTotPro  := 0
+		nQtd        := 0
+		nVlrPag     := 0
+		nVlrTot     := 0
+		cBloq       := If(TRBOP->BD6_BLOCPA = '1' .and. TRBOP->BD6_MOTBPF <> '982', '1', '0')  
+		
+		If nTipoRel == 1 .AND.;
+			BA0->(MsSeek(xFilial("BA0")+TRBOP->BD6_OPEORI)) .AND.;
+			(BA0->BA0_GRUOPE < cGrpOpDe .AND. cGrpOpAte < BA0->BA0_GRUOPE)
+			TRBOP->(DbSkip())
+			Loop
+		EndIf
+		
+		If nTipoDad == 1//impressão de dados em modo analitico
+			//posiciona no primeiro item da composição desse procedimento
+			If BD7->(MsSeek(xFilial("BD7")+"0055"+TRBOP->(BD6_CODLDP+BD6_CODPEG+BD6_NUMERO+BD6_ORIMOV+BD6_SEQUEN)))
+				BAU->(MsSeek(xFilial("BAU")+BD7->BD7_CODRDA))
+				PrtCab   := .F.
+				cQuebLDP := BD7->BD7_CODLDP
+				cQuebPEG := BD7->BD7_CODPEG
+				cQuebGUI := BD7->BD7_NUMERO
+				cCodPro  := BD7->(BD7_CODPAD+BD7_CODPRO)
+				cOrimov  := BD7->BD7_ORIMOV
+				cSequen  := BD7->BD7_SEQUEN
+				cTipRda  := BAU->BAU_TIPPRE
+				
+				// --
+				// -- Solicitado pela Andreia (SRP) - 21/06/2006
+				// -- Solicitado pela Andreia (SRP) - 28/05/2007 Sera exibido o BAU->BAU_CODIGO da RDA e nao mais o BAU->BAU_CONREG
+				// -- Solicitado pela Andreia (SRP) - 12/06/2007 Operadora nao devera aparecer o codigo da operadora e sim o da RDA da operadora
+				//cCodRda  := strzero( val( if( BAU->BAU_TIPPRE == "UNI", BAU->BAU_CODOPE, BAU->BAU_CODIGO ) ), 10 )
+				cCodRda  := BAU->BAU_CODIGO
+				
+				lFirst := .T.
+				//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+				//?Inicia a quebra por Peg...                                   ?
+				//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+				
+				While ! BD7->(Eof()) .And. BD7->(BD7_CODLDP+BD7->BD7_CODPEG+BD7->BD7_NUMERO+BD7->BD7_ORIMOV+BD7_SEQUEN) ==;//BD7->(BD7_CODLDP+BD7->BD7_CODPEG+BD7->BD7_NUMERO+BD7_CODPAD+BD7_CODPRO) ==;
+					cQuebLDP+cQuebPEG+cQuebGUI+cOrimov+cSequen
+					
+					//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+					//?Posiciona BD6-Item da Guia NELSON EM 28/05/07 PQ O BD6 ESTAVA VINDO DESPOSICIONADO ?
+					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					BD6->(DbSelectArea("BD6"))
+					BD6->(DbSetOrder(1))
+					BD6->(MsSeek(xFilial("BD6")+BD7->(BD7_CODOPE+BD7_CODLDP+BD7_CODPEG+BD7_NUMERO+BD7_ORIMOV+BD7_SEQUEN+BD7_CODPAD+BD7_CODPRO )))
+					
+					If BAU->BAU_CODIGO <> BD7->BD7_CODRDA
+						BAU->(MsSeek(xFilial("BAU")+BD7->BD7_CODRDA))
+					EndIf
+					lTemBD7 	:= .F.
+					lListaCab 	:= .F.
+					nVlrItem	:= 0
+					nVlrtax		:= 0
+					//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+					//?Verifica se foi abortada a impressao...            '                ?
+					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					If Interrupcao(lAbortPrint)
+						nLi ++
+						@ nLi, nColuna pSay "***ABORTADO PELO USUÁRIO***"
+						Exit
+					Endif
+					//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+					//?Verifica quebra...                                                 ?
+					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					If cQueb <> cLast .and. !empty(cLast)
+						RIntImpr_Resumo(aResumo,nVlrbloq)
+						RIntPag(.T., cTitulo, .F., .F.,aResumo)
+						
+						//Zero totais
+						nQtdRec := 0
+						aQtdGui := {}
+						nQtdGui := 0
+						
+					Else
+						//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+						//?Imprime cabecalho...                                                     ?
+						//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+						RIntPag(.F., cTitulo, .F., .t.,aResumo)
+					Endif
+					//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+					//?Exibe mensagem...                                                  ?
+					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					If  ! lGerTxt
+						MsProcTXT("Movimentacao "+BD7->(BD7_ANOPAG+"."+BD7_MESPAG+"-"+BD7_NUMERO))
+					Endif
+					
+					cMatUsr := iif(nTipMat==1,IF(TRBOP->BD6_MATUSA=="1".and.BA1->BA1_CODINT==BA1->BA1_OPEORI,BA1->(BA1_CODINT+"."+BA1_CODEMP+"."+BA1_MATRIC+"-"+BA1_TIPREG+"-"+BA1_DIGITO),Subs(BA1->BA1_MATANT,1,17)+Space(04)),Substr(BA1->BA1_MATEMP,1,17)+Space(04))
+					//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+					//?Monta numero da movimentacao...                                    ?
+					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					If cTXT <> 1
+						cMovime      := BD7->BD7_CODPEG+"-"+BD7->BD7_NUMERO+"-"+BD7->BD7_CODLDP
+					Else
+						cMovime      := BD7->BD7_CODPEG+BD7->BD7_NUMERO+BD7->BD7_CODLDP
+					EndIF
+					//--
+					//-- Nro do Impresso, solicitado pela Andreia. 21-06-2006
+					//--
+					cNumGui      := BD7->BD7_NUMERO
+					cNroImpresso := BD7->BD7_NUMIMP
+					
+					//If TRBOP->BD6_TPPF = '1'
+					//	nVlrItem := BD7->BD7_VLRTPF - BD7->BD7_VLRTAD  //BD7->BD7_VLRBPF
+					//Else
+					nVlrItem := BD7->BD7_VLRTPF - BD7->BD7_VLRTAD
+					//EndIf
+					
+					//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+					//?Posiciona BR8-Tabela Padrao                                              ?
+					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					If  BR8->(BR8_CODPAD+BR8_CODPSA) <> BD7->(BD7_CODPAD+BD7_CODPRO)
+						BR8->(msSeek(xFilial("BR8")+BD7->(BD7_CODPAD+BD7_CODPRO)))
+					Endif
+					
+					//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+					//?Posiciona BD4-composicao do procedimento se a tabela do BD6 for de intercambio     ?//nelson 29/05/07 solicitado andreia
+					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					nValRef := 0
+					cUnid   := " "
+					BD4->(DbSelectArea("BD4"))
+					BD4->(DbSetOrder(1))
+					If BD4->(MsSeek(xFilial("BD4")+"0055001"+BD7->(BD7_CODPAD+BD7_CODPRO+BD7_CODUNC)))
+						nValRef := BD4->BD4_VALREF
+						//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+						//?Posiciona BD3- Unidade para o intercambio                                          ?//nelson 29/05/07 solicitado andreia
+						//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+						BD3->(DbSelectArea("BD3"))
+						BD3->(DbSetOrder(1))
+						If BD3->(MsSeek(xFilial("BD3")+BD4->BD4_CODIGO))
+							cUnid:= BD3->BD3_UNIDAD
+						EndIf
+					EndIf
+					
+					if BR8->BR8_CONSFT == "1"
+						nVlrRef   := IIF(BD7->BD7_FATMUL>0,BD7->BD7_FATMUL,1) *((IIF(nValRef >0,nValRef,BD7->BD7_REFTDE) * BD6->BD6_QTDPRO)*iif(BD6->BD6_PERVIA>0,BD6->BD6_PERVIA,100)/100) // Mostra a quantidade de CHC de acordo com o a VIA
+					Else
+						nVlrRef   := ((IIF(nValRef >0,nValRef,BD7->BD7_REFTDE) * BD6->BD6_QTDPRO)*iif(BD6->BD6_PERVIA>0,BD6->BD6_PERVIA,100)/100) // Mostra a quantidade de CHC de acordo com o a VIA
+					endif
+					
+					nVlrTax	 := BD7->BD7_VLRTAD
+					
+					nQtdePro := TRBOP->BD6_QTDPRO
+					
+					If nQtdePro = 0
+						nQtdePro := 1
+					EndIf
+					
+					If cBloq = '1'
+						nVlrBloq += nVlrItem+nVlrTax
+					EndIf
+					
+					// gravo nessa variavel o valor do inss \
+					nVlrIns := Resumo(cCodOpe,cQuebLDP,cQuebPEG,cQuebGUI,nVlrItem,nVlrRef,nVlrTax,nPercIns)
+					
+					cInicio := cMatUsr+Space(01)+cNomUsr+Space(01)
+		
+					//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+					//?Verifica se o plano do usuário ?Ipasem / SRP                            ?
+					//?Imprime codificação AMB para usuários Ipasem / SRP                       ?
+					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					lIpasem	:= .F.
+					lTemAMB := .F.
+					if nIpasem == 1
+						if BD6->BD6_CODEMP == "0596" .or. BD6->BD6_CODEMP == "0998"
+							lIpasem := .T.
+							dbSelectArea("Z46")
+							Z46->(dbSetOrder(1)) //Z46_FILIAL+Z46_CDTBDE+Z46_CDPRDE+Z46_CDTBPA (De Tuss Para AMB)                                                                                                                                 
+							if Z46->(dbSeek(xFilial("Z46")+Substr(cCodPro,1,2)+alltrim(Substr(cCodPro,3,9)))) //if Z46->(dbSeek(xFilial("Z46")+Substr(cCodPro,1,2)+Padr(Alltrim(Substr(cCodPro,3,9)),16)+"01"))
+								cCdtbAMB := Z46->Z46_CDTBPA
+								cCdpcAMB := Z46->Z46_CDPRPA
+								lTemAMB := .T.
+							Endif
+						Endif
+					Endif
+					
+					//impressão do relatório
+					if nQbrPr == 1 // Quebra Por Nota
+						If cLastgui <> cQuebLDP+cQuebPEG+cQuebGUI
+							If nVlrGuiaTot <> 0
+								nLi++
+								@ nLi, nColuna + 161 pSay "TOTAL DA NOTA: "+TransForm(nVlrGuiaTot,__pMoeda)
+								nVlrGuiaTot := 0
+								nLi++
+							EndIf 	
+							nLi++
+							@ nLi, nColuna pSay padR(Substr(cNroImpresso,1,13) + " " + cMovime+Space(01)+cInicio+Space(01)+DtoC(TRBOP->BD6_DATPRO)+Space(01)+ cCodRda +;
+								Str(nQtdePro,3)+Iif(cBloq='1','*',Space(01))+;
+								iif(lIpasem.and.lTemAMB,PLDesCod(cCdpcAMB),PLDesCod(BD7->BD7_CODPRO))+Space(01)+; 										 // CHAMADO 12448
+							substr(iif(lIpasem.and.lTemAMB,PLDESPRO(cCdtbAMB,cCdpcAMB),BD6->BD6_DESPRO),1,18)+Space(01)+; // -------------
+							STR(BD7->BD7_COEFPF,7,2)+Space(01)+BD7->BD7_TPCOPF+;
+								SPACE(01)+IIF(Empty(BD7->BD7_CODUNC),BD7->BD7_CODUNM,BD7->BD7_CODUNC)+Space(01)+Str(nVlrRef,7,2)+;
+								IIf(BD7->(FieldPos("BD7_REFTDE"))>0,Space(1)+IIF(Empty(cUnid),BD7->BD7_UNITDE,cUnid),"     ")+;
+								Space(01)+TransForm(nVlrTax,pTaxa)+Space(01)+TransForm(nVlrItem,pCopart)+Space(01)+TransForm(nVlrItem+nVlrTax,__pMoeda)+Space(1)+;
+								iif(lPrnVlrPag,TransForm(BD7->BD7_VLRPAG,__pMoeda),space(5))+Space(2)+Padl(AllTrim(Str(BD6->BD6_PERVIA)),5)+;
+								iif(nVlrIns==0,"",Transform(nVlrIns,pInss))+Space(5)+nNumeroNota,280) 	
+								
+    
+    
+								    
+							 
+							nValorTot += nVlrItem + nVlrTax
+						Else	
+							nLi++
+							@ nLi, nColuna pSay padR(Substr(cNroImpresso,1,13) + " " + Space(len(cMovime+Space(01)+cInicio))+;
+								Space(01)+DtoC(TRBOP->BD6_DATPRO)+Space(01)+ cCodRda +Str(nQtdePro,3)+Iif(cBloq='1','*',Space(01))+;
+								iif(lIpasem.and.lTemAMB,PLDesCod(cCdpcAMB),PLDesCod(BD7->BD7_CODPRO))+Space(01)+; 										 // CHAMADO 12448
+							substr(iif(lIpasem.and.lTemAMB,PLDESPRO(cCdtbAMB,cCdpcAMB),BD6->BD6_DESPRO),1,18)+Space(01)+; // -------------
+							STR(BD7->BD7_COEFPF,7,2)+Space(01)+BD7->BD7_TPCOPF+;
+								SPACE(01)+IIF(Empty(BD7->BD7_CODUNC),BD7->BD7_CODUNM,BD7->BD7_CODUNC)+Space(01)+Str(nVlrRef,7,2)+;
+								IIf(BD7->(FieldPos("BD7_REFTDE"))>0,Space(1)+IIF(Empty(cUnid),BD7->BD7_UNITDE,cUnid),"     ")+;
+								Space(01)+TransForm(nVlrTax,pTaxa)+Space(01)+ TransForm(nVlrItem,pCopart)+Space(01)+TransForm(nVlrItem+nVlrTax,__pMoeda)+Space(1)+;
+								iif(lPrnVlrPag,TransForm(BD7->BD7_VLRPAG,__pMoeda),space(5))+Space(2)+Padl(AllTrim(Str(BD6->BD6_PERVIA)),5)+;
+								iif(nVlrIns==0,"",Transform(nVlrIns,pInss))+Space(5)+nNumeroNota,280)
+							
+								
+						
+							nValorTot += nVlrItem + nVlrTax
+						EndIf
+					Else // Quebra Por Familia
+						If cLastFam <> BA1->(BA1_CODINT+BA1_CODEMP+BA1_MATRIC)
+							If nVlrGuiaTot <> 0
+								nLi++
+								@ nLi, nColuna + 176 pSay "TOTAL FAMILIA: "+TransForm(nVlrGuiaTot,__pMoeda)
+								nVlrGuiaTot	:= 0
+								if nQbrPag == 1
+									RIntPag(.T., cTitulo, .F., .t.,aResumo)
+								Else
+									nLi++
+								Endif
+								lPrimUFm := .T.
+							EndIf
+							if lPrimUFm
+								if BA1->BA1_TIPREG <> '00'
+									nIdBA1 := BA1->(IndexOrd())
+									nRcBa1 := BA1->(Recno())
+									BA1->(DbSetOrder(1))
+									if BA1->(MsSeek(xFilial("BA1")+BA1->(BA1_CODINT+BA1_CODEMP+BA1_MATRIC+"T")))
+										@ nLi, nColuna pSay padR("TITULAR DA FAMILIA:  "+iif(nTipMat==1,BA1->(BA1_CODINT+"."+BA1_CODEMP+"."+BA1_MATRIC+"-"+BA1_TIPREG+"-"+BA1_DIGITO),Substr(BA1->BA1_MATEMP,1,17)+Space(04))+" - "+BA1->BA1_NOMUSR ,220)
+									Endif
+									BA1->(DbSetOrder(nIdBA1))
+									BA1->(dbGoto(nRcBA1))
+								Endif
+								lPrimUFM := .F.
+							Endif
+							nLi++
+							@ nLi, nColuna pSay padR(Substr(cNroImpresso,1,13) + " " + cMovime+Space(01)+cInicio+Space(01)+DtoC(TRBOP->BD6_DATPRO)+Space(01)+ cCodRda +;
+								Str(nQtdePro,3)+Iif(cBloq='1','*',Space(01))+;
+								iif(lIpasem.and.lTemAMB,PLDesCod(cCdpcAMB),PLDesCod(BD7->BD7_CODPRO))+Space(01)+; 										 // CHAMADO 12448
+							substr(iif(lIpasem.and.lTemAMB,PLDESPRO(cCdtbAMB,cCdpcAMB),BD6->BD6_DESPRO),1,18)+Space(01)+; // -------------
+							STR(BD7->BD7_COEFPF,7,2)+Space(01)+BD7->BD7_TPCOPF+;
+								SPACE(01)+IIF(Empty(BD7->BD7_CODUNC),BD7->BD7_CODUNM,BD7->BD7_CODUNC)+Space(01)+Str(nVlrRef,7,2)+;
+								IIf(BD7->(FieldPos("BD7_REFTDE"))>0,Space(1)+IIF(Empty(cUnid),BD7->BD7_UNITDE,cUnid),"     ")+;
+								Space(01)+TransForm(nVlrTax,pTaxa)+Space(01)+TransForm(nVlrItem,pCopart)+Space(01)+TransForm(nVlrItem+nVlrTax,__pMoeda)+SPACE(1)+;
+								iif(lPrnVlrPag,TransForm(BD7->BD7_VLRPAG,__pMoeda),space(05))+Space(2)+Padl(AllTrim(Str(BD6->BD6_PERVIA)),5)+;
+								iif(nVlrIns==0,"",Transform(nVlrIns,pInss)),220)
+						 
+							nValorTot += nVlrItem + nVlrTax
+						Else
+							if (cLastUsr <> BA1->BA1_TIPREG) .or. ((cLastUsr == BA1->BA1_TIPREG) .and. (Substr(cNroImpresso,1,15) <> cLastImp))
+								cLinTmp := Substr(cNroImpresso,1,15) + "  " + cMovime+Space(01)+cInicio+Space(01)
+							Else
+								cLinTmp := Substr(cNroImpresso,1,15) + "  " + Space(len(cMovime+Space(01)+cInicio+Space(01))) 
+							Endif
+							nLi++ 
+							@ nLi, nColuna pSay padR(cLinTmp+;
+								DtoC(TRBOP->BD6_DATPRO)+Space(01)+ cCodRda +Str(nQtdePro,3)+Iif(cBloq='1','*',Space(01))+;
+								iif(lIpasem.and.lTemAMB,PLDesCod(cCdpcAMB),PLDesCod(BD7->BD7_CODPRO))+Space(01)+; 										 // CHAMADO 12448
+							substr(iif(lIpasem.and.lTemAMB,PLDESPRO(cCdtbAMB,cCdpcAMB),BD6->BD6_DESPRO),1,18)+Space(01)+; // -------------
+							STR(BD7->BD7_COEFPF,7,2)+Space(01)+BD7->BD7_TPCOPF+;
+								SPACE(01)+IIF(Empty(BD7->BD7_CODUNC),BD7->BD7_CODUNM,BD7->BD7_CODUNC)+Space(01)+Str(nVlrRef,7,2)+;
+								IIf(BD7->(FieldPos("BD7_REFTDE"))>0,Space(1)+IIF(Empty(cUnid),BD7->BD7_UNITDE,cUnid),"     ")+;
+								Space(01)+TransForm(nVlrTax,pTaxa)+Space(01)+TransForm(nVlrItem,pCopart)+Space(01)+TransForm(nVlrItem+nVlrTax,__pMoeda)+SPACE(1)+;
+								iif(lPrnVlrPag,TransForm(BD7->BD7_VLRPAG,__pMoeda),space(05))+Space(2)+Padl(AllTrim(Str(BD6->BD6_PERVIA)),5)+;
+								iif(nVlrIns==0,"",Transform(nVlrIns,pInss)),220)
+							
+							nValorTot += nVlrItem + nVlrTax
+						EndIf
+					Endif
+
+						
+					cLast      := Iif(nTipoRel==1,TrbOp->BD6_OPEORI,TrbOp->(BD6_CODEMP+BD6_CONEMP+BD6_VERCON+BD6_SUBCON+BD6_VERSUB))
+					nVlrTotGui := nVlrItem
+					nVlrTotNot += nVlrItem
+					nVlrTotTax += nVlrTax
+					nVlrGRef   := nVlrRef
+					nItens     := 1
+					lfirst	   := .f.
+					cLastgui   := cQuebLDP+cQuebPEG+cQuebGUI
+					cLastFam   := BA1->(BA1_CODINT+BA1_CODEMP+BA1_MATRIC)
+					cLastUsr   := BA1->BA1_TIPREG
+					cLastImp	:= Substr(cNroImpresso,1,15)
+					
+					nVlrGuiaTot += nVlrTax+nVlrItem
+					nPdaGuiaTot += nVlrTax+nVlrItem
+					
+					//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+					//?Soma total                                            ?
+					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					nVlrPag := nVlrPag + nVlrItem
+					nVlrPRef := nVlrPRef + nVlrRef
+					nQtd ++
+					//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+					//?Acessa proximo registro...                                               ?
+					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					BD7->(DbSkip())
+				EndDo //While ! BD7->(Eof()) .And. BD7->BD7_CODLDP == cQuebLDP .And. BD7->BD7_CODPEG == cQuebPEG .And. BD7->BD7_NUMERO == cQuebGUI
+				
+			EndIf //BD7->(MsSeek(xFilial("BD7")+"0055"+BD6_CODLDP+BD6_CODPEG+BD7_NUMERO))
+		Else
+			cQuebLDP := TRBOP->BD6_CODLDP
+			cQuebPEG := TRBOP->BD6_CODPEG
+			cQuebGUI := TRBOP->BD6_NUMERO
+			cOrimov  := TRBOP->BD6_ORIMOV
+			cSequen	 := TRBOP->BD6_SEQUEN
+			nQtdePro := TRBOP->BD6_QTDPRO
+			
+			If nQtdePro = 0
+				nQtdePro := 1
+			EndIf
+			
+			nVlrFil	 := 0
+			//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			//?Imprime cabecalho...                                                     ?
+			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			If cQueb <> cLast .and. !empty(cLast)
+				
+				If nVlrGuiaTot <> 0
+					nLi++
+					@ nLi, nColuna + 161 pSay "TOTAL DA NOTA: "+TransForm(nVlrGuiaTot,__pMoeda)
+					nVlrGuiaTot := 0
+					nLi++
+				EndIf
+				
+				RIntImpr_Resumo(aResumo,nvlrBloq)
+				RIntPag(.T., cTitulo, .F., .F.,aResumo)
+				
+				//Zero totais
+				nQtdRec := 0
+				aQtdGui := {}
+				nQtdGui := 0
+				
+			Else
+				//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+				//?Imprime cabecalho...                                                     ?
+				//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+				RIntPag(.F., cTitulo, .F., .T.,aResumo)
+			Endif
+			If  ! lGerTxt
+				MsProcTXT("Movimentacao "+TRBOP->(BD6_ANOPAG+"."+BD6_MESPAG+"-"+BD6_NUMERO)+"  - Pagina "+StrZero(m_pag,4))
+			Endif
+			//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			//?Busca nome do usuario do item posicionado...                       ?
+			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			BA1->(DbSetOrder(2))
+			If BA1->(DbSeek(xFilial("BA1")+TRBOP->(BD6_OPEUSR+BD6_CODEMP+BD6_MATRIC+BD6_TIPREG)))
+				cNomUsr := SubStr(TRBOP->BD6_NOMUSR,1,20)//Subs(BA1->BA1_NOMUSR,1,25)
+			Else
+				cNomUsr := Space(20)
+			Endif
+			cMatUsr := IF(TRBOP->BD6_MATUSA=="1".and.BA1->BA1_CODINT==BA1->BA1_OPEORI,BA1->(BA1_CODINT+"."+BA1_CODEMP+"."+BA1_MATRIC+"-"+BA1_TIPREG+"-"+BA1_DIGITO),Subs(BA1->BA1_MATANT,1,17)+Space(04))
+			//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			//?Monta numero da movimentacao...                                    ?
+			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			cMovime := TRBOP->BD6_CODPEG+"-"+TRBOP->BD6_NUMERO+"-"+TRBOP->BD6_CODLDP
+			
+			cNumGui := TRBOP->BD6_NUMERO
+			
+			If BD7->(MsSeek(xFilial("BD7")+"0055"+TRBOP->(BD6_CODLDP+BD6_CODPEG+BD6_NUMERO+BD6_ORIMOV+BD6_SEQUEN)))
+				BAU->(MsSeek(xFilial("BAU")+BD7->BD7_CODRDA))
+				PrtCab  := .F.
+				cQuebLDP := TRBOP->BD6_CODLDP
+				cQuebPEG := TRBOP->BD6_CODPEG
+				cQuebGUI := TRBOP->BD6_NUMERO
+				cCodPro  := BD7->(BD7_CODPAD+BD7_CODPRO)
+				cOrimov  := TRBOP->BD6_ORIMOV
+				cSequen	 := TRBOP->BD6_SEQUEN
+				lFirst := .T.
+				nQtdePro := TRBOP->BD6_QTDPRO
+				
+				If nQtdePro = 0
+					nQtdePro := 1
+				EndIf
+				
+				// --
+				// -- Solicitado pela Andreia (SRP) - 21/06/2006
+				// --
+				//cCodRda  := PLSZero(if( BAU->BAU_TIPPRE == "UNI", BAU->BAU_CODOPE, BAU->BAU_CONREG ), 10 )
+				cCodRda  := strzero(val(BAU->BAU_CODIGO), 10 )
+				
+				//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+				//?Inicia a quebra por Peg...                                   ?
+				//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+				While ! BD7->(Eof()) .And. BD7->(BD7_CODLDP+BD7->BD7_CODPEG+BD7->BD7_NUMERO+BD7->BD7_ORIMOV+BD7_SEQUEN) ==;//BD7->(BD7_CODLDP+BD7->BD7_CODPEG+BD7->BD7_NUMERO+BD7_CODPAD+BD7_CODPRO) ==;
+					cQuebLDP+cQuebPEG+cQuebGUI+cOrimov+cSequen
+					If BAU->BAU_CODIGO <> BD7->BD7_CODRDA
+						BAU->(MsSeek(xFilial("BAU")+BD7->BD7_CODRDA))
+					EndIf
+					//nVlrItem:= Iif(TRBOP->BD6_TPPF == '1', (TRBOP->BD6_VLRBPF * BD7->BD7_PERCEN)/100, ((TRBOP->BD6_VLRTPF - TRBOP->BD6_VLRTAD) * BD7->BD7_PERCEN)/100)
+					
+					//If TRBOP->BD6_TPPF = '1'
+					//	nVlrItem := BD7->BD7_VLRBPF
+					//Else
+					nVlrItem := BD7->BD7_VLRTPF - BD7->BD7_VLRTAD
+					//EndIf
+					
+					nVlrTax  := BD7->BD7_VLRTAD
+					nVlrGuiaTot := 0
+					
+					If cBloq = '1'
+						nVlrBloq += nVlrItem+nVlrTax
+					EndIf
+					
+					Resumo(cCodOpe,cQuebLDP,cQuebPEG,cQuebGUI,nVlrItem,0,nVlrTax,nPercIns)
+					
+					BD7->(DbSkip())
+					
+				EndDo
+			EndIf
+			
+			cInicio := cMatUsr+Space(01)+cNomUsr+Space(01)
+			
+			//--
+			//-- Nro do Impresso, solicitado pela Andreia. 21-06-2006
+			//--
+			cNroImpresso := BD7->BD7_NUMIMP
+			
+			//If cLastgui <> cQuebLDP+cQuebPEG+cQuebGUI
+			
+			If cUsu <> cMatUsr
+				If nVlrGuiaTot <> 0
+					nLi++
+					@ nLi, nColuna + 161 pSay "TOTAL DA NOTA: "+TransForm(nVlrGuiaTot,__pMoeda)
+					nVlrGuiaTot := 0
+					nLi++
+				EndIf
+				nLi++
+				@ nLi, nColuna pSay padR(cNroImpresso + "  " + cMovime+Space(01)+cInicio+Space(01)+DtoC(TRBOP->BD6_DATPRO)+Space(01)+ cCodRda +;
+				Str(nQtdePro,3)+Iif(cBloq='1','*',Space(01))+PLDesCod(TRBOP->BD6_CODPRO)+Space(01)+;
+				substr(BD6->BD6_DESPRO,1,23)+Space(01)+;
+				TransForm(nVlrTax,__pMoeda)+Space(01)+TransForm(nVlrFil,__pMoeda)+Space(01)+TransForm(nVlrItem,__pMoeda)+Space(01)+TransForm(nVlrItem+nVlrTax,__pMoeda),220)
+				
+				nValorTot += nVlrItem + nVlrTax
+			Else
+				nLi++
+				@ nLi, nColuna pSay padR(cNroImpresso + "  " + Space(len(cMovime+Space(01)+cInicio+Space(01)))+DtoC(TRBOP->BD6_DATPRO)+Space(01)+ cCodRda +;
+				Str(nQtdePro,3)+Iif(cBloq='1','*',Space(01))+PLDesCod(TRBOP->BD6_CODPRO)+Space(01)+;
+				substr(PLDESPRO(TRBOP->BD6_CODPAD,TRBOP->BD6_CODPRO),1,18)+Space(01)+;
+				TransForm(nVlrTax,__pMoeda)+Space(01)+TransForm(nVlrFil,__pMoeda)+Space(01)+TransForm(nVlrItem,__pMoeda)+Space(01)+TransForm(nVlrItem+nVlrTax,__pMoeda),220)
+			
+				nValorTot += nVlrItem + nVlrTax
+			EndIf
+			
+			
+						
+			clastgui   :=cQuebLDP+cQuebPEG+cQuebGUI
+			cLast      := Iif(nTipoRel==1,TrbOp->BD6_OPEORI,TrbOp->(BD6_CODEMP+BD6_CONEMP+BD6_VERCON+BD6_SUBCON+BD6_VERSUB))
+			nVlrTotGui := nVlrItem
+			nVlrTotNot += nVlrItem
+			nVlrTotTax += nVlrTax
+			nVlrGRef   := nVlrRef
+			nItens     := 1
+			cUsu		  := cMatUsr
+			nVlrGuiaTot += nVlrTax + nVlrItem//nVlrTotTax+nVlrTotNot
+			nVlrGuiaTot := 0
+			
+			//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			//?Soma total                                                         ?
+			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			nVlrPag  += nVlrItem
+			nQtd ++
+		EndIf
+		
+		//Quantidade de Eventos
+		nQtdRec++
+		
+		//Quantidade de Guias
+		if aScan(aQtdGui,TrbOp->(BD6_CODLDP+BD6_CODPEG+BD6_NUMERO)) == 0
+			nQtdGui++
+			nQtdGTot++ //Total Geral de Guias
+			aadd(aQtdGui,TrbOp->(BD6_CODLDP+BD6_CODPEG+BD6_NUMERO))
+			
+		Endif
+		
+		TrbOp->(DbSkip())
+		
+		If nTipoDad = 1 .or. ;
+			(nTipoDad <> 1 .AND. SubStr(cUsu,1,17) <> TRBOP->(BD6_CODOPE+BD6_CODEMP+BD6_MATRIC+BD6_TIPREG+BD6_DIGITO) .AND. !EMPTY(cUsu))
+			nVlrTotNot := 0
+			nVlrTotTax := 0
+			
+		EndIf
+		nTotal++	
+		
+		
+	EndDo//While !TrbOp->(Eof())
+	
+	
+	if nQbrPag == 1
+		RIntPag(.T., cTitulo, .F., .t.,aResumo)
+		
+	Endif
+	
+	//Antes de começar a nova página, verifico se h?totais para imprimir...
+	if nQbrPr == 1 // Quebra Por Nota
+		If nVlrGuiaTot <> 0
+			nLi++
+			@ nLi, nColuna + 161 pSay "TOTAL DA NOTA: "+TransForm(nVlrGuiaTot,__pMoeda)
+			nVlrGuiaTot := 0
+			nLi++
+		Endif
+		
+	Else
+	
+		If nVlrGuiaTot <> 0
+			nLi++
+			@ nLi, nColuna + 176 pSay "TOTAL FAMILIA: "+TransForm(nVlrGuiaTot,__pMoeda)
+			nVlrGuiaTot	:= 0
+			if nQbrPag == 1
+				RIntPag(.T., cTitulo, .F., .t.,aResumo)
+				 
+			Else
+				nLi++
+				 
+			Endif
+			lPrimUFm := .T.
+			
+		EndIf
+		
+	Endif
+	
+	//Nova Página
+	if !Empty(cQueb)						
+		RIntImpr_Resumo(aResumo,nVlrBloq)
+		
+	Endif
+	cLast := ""
+	TrbOp->(DbCloseArea())
+Next i
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Imprime total geral...                                             ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+if nImpTot == 1
+	Resumo_Tot(aResTot,nVlrBloq)
+Endif
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Exibe mensagem...                                                  ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If  ! lGerTxt
+	MsProcTXT("Calculando totais do relatorio...")
+Endif
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Libera impressao                                                         ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If  aReturn[5] == 1
+	Set Printer To
+	IIF(!lGerTxt,OurSpool(nrel),.t.)
+End
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Fim do Relat¢rio                                                         ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Return
+
+Static Function RIntImpr_Resumo(aResumo,nVlrBloq)
+Local lListaCab := .F., lResumo := .T. 
+Local nI       := 0   
+Local nJ       := 0                              
+Local cResCab1 := Replicate("-",220)
+Local cResCab2 := "|DESCRICAO               |      CONSULTAS     |        SERVIÇOS      |     TRATAMENTO HOSP. |              |     VLR      |        |      TAXA   |     TOTAL   |"
+Local cResCab3 := "|                        | QTD     |    VLR   |  QTD      |     VLR  |  QTD      |   VLR    |   VLR FIL    |   MAT/MED    | DIARIAS|      ADM    |             |"
+//rotina para impressão do resumo
+
+If (nQtdLin - nLi) <= 10//verifica se o resumo logo abaixo dos dados ou ser?em uma nova pagina
+	RIntPag(.t., cTitulo, .f., .T. ,aResumo)
+EndIf
+
+nLi += 1        
+@ nLi, nColuna PSay "Quantidade de Eventos:"+Transform(nQtdRec,"@E 999,999,999")
+nLi += 1        
+@ nLi, nColuna PSay "Quantidade de Guias..:"+Transform(nQtdGui,"@E 999,999,999")
+nLi += 1        
+@ nLi, nColuna PSay "RESUMO....."
+nLi+=2
+@ nLi, nColuna PSay cResCab1      
+nLi++
+@ nLi, nColuna PSay cResCab2
+nLi++
+@ nLi, nColuna PSay cResCab3
+nLi++
+@ nLi, nColuna PSay cResCab1
+nLi++
+@ nLi, nColuna PSay "ATOS PRINCIPAIS"
+nLi++
+//imprime atos principais
+For nI:= 1 to 3   
+	@ nLi, nColuna+5 PSay aResumo[nI][1]+Space(05)+Strzero(aResumo[nI][2],5)+Space(03)+Transform(aResumo[nI][3],_pMoed2)+;
+	Space(03)+Strzero(aResumo[nI][4],5)+Space(03)+Transform(aResumo[nI][5],_pMoed2)+Space(03)+Strzero(aResumo[nI][6],5)+Space(03)+;
+	Transform(aResumo[nI][7],_pMoed2)+Space(03)+Transform(aResumo[nI][8],_pMoed2)+Space(03)+Transform(aResumo[nI][9],_pMoed2)+;
+	Space(03)+strzero(aResumo[nI][10],5)+Space(03)+Transform(aResumo[nI][11],_pMoed2)+Space(03)+;
+	Transform(aResumo[nI][12],_pMoed2) 
+	nLi++
+Next nI
+//imprime atos auxiliares
+@ nLi, nColuna PSay "ATOS AUXILIARES"
+nLi++
+For nI:= 4 to 7 
+
+@ nLi, nColuna+5 PSay aResumo[nI][1]+Space(05)+Strzero(aResumo[nI][2],5)+Space(03)+Transform(aResumo[nI][3],_pMoed2)+;
+	Space(03)+Strzero(aResumo[nI][4],5)+Space(03)+Transform(aResumo[nI][5],_pMoed2)+Space(03)+Strzero(aResumo[nI][6],5)+Space(03)+;
+	Transform(aResumo[nI][7],_pMoed2)+Space(03)+Transform(aResumo[nI][8],_pMoed2)+Space(03)+Transform(aResumo[nI][9],_pMoed2)+;
+	Space(03)+Strzero(aResumo[nI][10],5)+Space(03)+Transform(aResumo[nI][11],_pMoed2)+Space(03)+;
+	Transform(aResumo[nI][12],_pMoed2)
+	nLi++
+Next nI
+//OUTROS ATOS
+
+
+@ nLi, nColuna PSay aResumo[8][1]+Space(10)+Strzero(aResumo[8][2],5)+Space(03)+Transform(aResumo[8][3],_pMoed2)+;
+Space(03)+Strzero(aResumo[8][4],5)+Space(03)+Transform(aResumo[8][5],_pMoed2)+Space(03)+Strzero(aResumo[8][6],5)+Space(03)+;
+Transform(aResumo[8][7],_pMoed2)+Space(03)+Transform(aResumo[8][8],_pMoed2)+Space(03)+Transform(aResumo[8][9],_pMoed2)+;
+Space(03)+Strzero(aResumo[8][10],5)+Space(03)+Transform(aResumo[8][11],_pMoed2)+Space(03)+;
+Transform(aResumo[8][12],_pMoed2)
+nLi++ 
+
+//TOTAL DAS COLUNAS              
+
+@ nLi, nColuna PSay aResumo[9][1]+Space(10)+Strzero(aResumo[9][2],5)+Space(03)+Transform(aResumo[9][3],_pMoed2)+;
+Space(03)+Strzero(aResumo[9][4],5)+Space(03)+Transform(aResumo[9][5],_pMoed2)+Space(03)+Strzero(aResumo[9][6],5)+Space(03)+;
+Transform(aResumo[9][7],_pMoed2)+Space(03)+Transform(aResumo[9][8],_pMoed2)+Space(03)+Transform(aResumo[9][9],_pMoed2)+;
+Space(03)+Strzero(aResumo[9][10],5)+Space(03)+Transform(aResumo[9][11],_pMoed2)+Space(03)+;
+Transform(aResumo[9][12],_pMoed2)
+nLi++
+If nVlrBloq > 0
+	nLi++
+	@ nLi, nColuna PSay "VALOR TOTAL DE NOTAS BLOQUEADAS ---------- "+ Transform(nVlrBloq,_pMoed2)
+	nLi++
+EndIf
+//zera arrray de resumo
+For nI:=1 to Len(aResumo)
+	For nJ:= 2 to 12
+		aResumo[nI][nJ] := 0
+	Next nJ
+Next nI
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Imprime rodade padrao do produto Microsiga                         ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Return
+
+Static Function RIntPag(lForce, cTitulo, lListaCab, lResumo, aResumo, lCabec)
+
+Local cFase
+default lForce := .F.
+default lListaCab := .T.
+default lResumo := .F.
+default lCabec  := .T.
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//Rotina para impressão do cabeçalho das páginas                       ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If nLi >= nQtdLin .Or. lForce .or. Empty(cLast)
+	nLi := 6
+	cFase := ""
+	If nFase == 1
+		cFase:= "Digitacao"
+	ElseIf nFase == 2
+		cFase:= "Conferencia"
+	ElseIf nFase == 3
+		cFase:= "Pronta"
+	ElseIf nFase == 4
+		cFase:= "Pronta/Faturada"
+	EndIF
+	Cabec(cTitulo,If(lListaCab,cCabec1,""),If(lListaCab,cCabec2,""),cNomeProg,cTamanho,nCaracter)
+	If nTipoRel == 1
+		BA0->(DbSetOrder(1))
+		BA0->(MsSeek(xFilial("BA0")+cQueb)) //posiciona na Operadora
+		cNom := BA0->(BA0_CODIDE+BA0_CODINT+Space(03)+BA0_NOMINT)
+		@ nLi, nColuna pSay "UNIMED VALE DO SINOS - Sociedade Cooperativa de Trabalho Medico "+Space(20)+;
+		SUBSTR(DTOC(dDataBase),1,2)+ " de " + MesExtenso(MONTH(dDataBase)) + " de " + STR(YEAR(dDataBase),4)+Space(10)
+		nLi += 2
+		@ nLi, nColuna pSay "RELATORIO DE INTERCAMBIO ENTRE UNIMEDS (CAMARA) - COMPETENCIA: "+cMesDe+"/"+cAnoDe+" at?"+cMesAte+"/"+cAnoAte+" FASE..: "+cFase
+		nLi += 2
+		@ nLi, nColuna pSay "UNIMED..: " + cNom
+		nLi ++
+		nLinha+=5
+	Else
+		DbSelectArea("BQC")
+		BQC->(DbSetOrder(1))
+		 BQC->(MsSeek(xFilial("BQC")+"0055"+cQueb)) //Substr(cQueb,1,4)+"000000000001001"+Substr(cQueb,5,9))) //posiciona na empresa
+		if !lResumo .OR. Empty(cNom) .or. Substr(cNom,1,4)+Substr(cNom,6,9) <> BQC->(BQC_CODEMP+BQC_SUBCON)
+			cNom := BQC->(BQC_CODEMP+"."+ BQC_NUMCON +"."+BQC_SUBCON+"-"+BQC_DESCRI)
+		Endif
+		@ nLi, nColuna pSay "UNIMED VALE DO SINOS - Sociedade Cooperativa de Trabalho Medico "+Space(20)+;
+		SUBSTR(DTOC(dDataBase),1,2)+ " de " + MesExtenso(MONTH(dDataBase)) + " de " + STR(YEAR(dDataBase),4)+Space(10)
+		nLi += 2
+		@ nLi, nColuna pSay "RELATORIO DE CUSTO OPERACIONAL - COMPETENCIA: "+cMesDe+"/"+cAnoDe+" at?"+cMesAte+"/"+cAnoAte+" FASE..: "+cFase
+		nLi += 2
+		if lCabec
+			@ nLi, nColuna pSay "GRUPO EMPRESA..: " + cNom
+			nLi ++
+			nLinha+=5
+		Endif
+	EndIf
+	
+	if lCabec	
+		If  nTipoDad == 1
+			@ nLi, nColuna pSay Replicate("=",220)
+			nLi ++
+			@ nLi, nColuna pSay cCabec1//cabeçalho se o relatório for analisto
+			nLi ++
+			@ nLi, nColuna pSay Replicate("=",220)
+			nLi++
+		Else
+			@ nLi, nColuna pSay Replicate("=",220)
+			nLi ++
+			@ nLi, nColuna pSay cCabec2//cabeçalho se o relatório for sintético
+			nLi ++
+			@ nLi, nColuna pSay Replicate("=",220)
+			nLi++
+		EndIf
+
+	Endif
+	
+Endif
+
+Return
+
+Static Function Resumo(cCodOpe,cQuebLDP,cQuebPEG,cQuebGUI,nVlrItem,nVlrRef,nVlrTax,nPercIns)
+Local nRet := 0
+Local nI   := 0
+Local nJ   := 0
+Local lConsul :=.f.
+
+aConsultas := u_plsiscon()
+
+If (aScan(aConsultas,{|x| x == TRBOP->BD6_CODPAD+alltrim(TRBOP->BD6_CODPRO)})) > 0
+	lConsul := .T.
+EndIf
+
+If BAU->BAU_CODIGO <> BD7->BD7_CODRDA
+	BAU->(MsSeek(xFilial("BAU")+BD7->BD7_CODRDA))
+EndIf
+
+If TRBOP->BD6_CODPRO = '70004108'
+	
+	aResumo[7][2]  += TRBOP->BD6_QTDPRO
+	aResumo[7][3]  += ROUND(nVlrItem,2)
+	aResumo[7][11] += ROUND(nVlrTax,2)
+	
+	aResTot[7][2]  += TRBOP->BD6_QTDPRO
+	aResTot[7][3]  += ROUND(nVlrItem,2)
+	aResTot[7][11] += ROUND(nVlrTax,2)
+	
+ElseIf lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE $ "MED,ANE"
+	
+	aResumo[1][2]  += TRBOP->BD6_QTDPRO
+	aResumo[1][3]  += ROUND(nVlrItem,2)
+	aResumo[1][11] += ROUND(nVlrTax,2)
+	if nPercIns > 0
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+	aResTot[1][2]  += TRBOP->BD6_QTDPRO
+	aResTot[1][3]  += ROUND(nVlrItem,2)
+	aResTot[1][11] += ROUND(nVlrTax,2)
+	
+ElseIf lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE = "LAB"
+	
+	aResumo[5][4]  += TRBOP->BD6_QTDPRO
+	aResumo[5][5]  += ROUND(nVlrItem,2)
+	aResumo[5][11] += ROUND(nVlrTax,2)
+	
+	aResTot[5][4]  += TRBOP->BD6_QTDPRO
+	aResTot[5][5]  += ROUND(nVlrItem,2)
+	aResTot[5][11] += ROUND(nVlrTax,2)
+	
+ElseIf lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE = "FIS"
+	
+	aResumo[6][4]  += TRBOP->BD6_QTDPRO
+	aResumo[6][5]  += ROUND(nVlrItem,2)
+	aResumo[6][11] += ROUND(nVlrTax,2)
+	
+	aResTot[6][4]  += TRBOP->BD6_QTDPRO
+	aResTot[6][5]  += ROUND(nVlrItem,2)
+	aResTot[6][11] += ROUND(nVlrTax,2)
+
+/* 197373 Alteração Classe RDA - Bianca */		
+//ElseIf lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE $ "CLI,CDI,OUT,UCM"//OUT adicionado referente ao chamado 10108109
+ElseIf lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE $  (cParamRDA + ",CDI,OUT,UCM")//OUT adicionado referente ao chamado 10108109
+	
+	aResumo[6][2]  += TRBOP->BD6_QTDPRO
+	aResumo[6][3]  += ROUND(nVlrItem,2)
+	aResumo[6][11] += ROUND(nVlrTax,2)
+	
+	aResTot[6][2]  += TRBOP->BD6_QTDPRO
+	aResTot[6][3]  += ROUND(nVlrItem,2)
+	aResTot[6][11] += ROUND(nVlrTax,2)
+	
+ElseIf !lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE $ "MED,ANE" //$ "CLI,LAB,MED"
+	
+	aResumo[1][4]  += TRBOP->BD6_QTDPRO
+	aResumo[1][5]  += ROUND(nVlrItem,2)
+	aResumo[1][11] += ROUND(nVlrTax,2)
+	if nPercIns > 0
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+	aResTot[1][4]  += TRBOP->BD6_QTDPRO
+	aResTot[1][5]  += ROUND(nVlrItem,2)
+	aResTot[1][11] += ROUND(nVlrTax,2)
+
+/* 197373 Alteração Classe RDA - Bianca */			
+//ElseIf !lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE $ 'CLI,UCM' .and. BR8->BR8_ATOCOP = '1'  
+ElseIf !lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE $ (cParamRDA + ',UCM') .and. BR8->BR8_ATOCOP = '1'  
+	
+	aResumo[1][4]  += TRBOP->BD6_QTDPRO
+	aResumo[1][5]  += ROUND(nVlrItem,2)
+	aResumo[1][11] += ROUND(nVlrTax,2)
+	if nPercIns > 0
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+	aResTot[1][4]  += TRBOP->BD6_QTDPRO
+	aResTot[1][5]  += ROUND(nVlrItem,2)
+	aResTot[1][11] += ROUND(nVlrTax,2)
+	
+
+
+ElseIf lConsul .AND. alltrim(BD7->BD7_CODUNM) == 'VMT' .AND. BAU->BAU_TIPPRE $ "MED,ANE"
+	
+	aResumo[1][4]  += TRBOP->BD6_QTDPRO
+	aResumo[1][5]  += ROUND(nVlrItem,2)
+	aResumo[1][11] += ROUND(nVlrTax,2)
+	if nPercIns > 0
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+	aResTot[1][4]  += TRBOP->BD6_QTDPRO
+	aResTot[1][5]  += ROUND(nVlrItem,2)
+	aResTot[1][11] += ROUND(nVlrTax,2)
+	
+ElseIf lConsul .AND. alltrim(BD7->BD7_CODUNM) == 'VMT' .AND. BAU->BAU_TIPPRE = "LAB"
+	
+	aResumo[5][4]  += TRBOP->BD6_QTDPRO
+	aResumo[5][5]  += ROUND(nVlrItem,2)
+	aResumo[5][11] += ROUND(nVlrTax,2)
+	
+	aResTot[5][4]  += TRBOP->BD6_QTDPRO
+	aResTot[5][5]  += ROUND(nVlrItem,2)
+	aResTot[5][11] += ROUND(nVlrTax,2)
+
+/* 197373 Alteração Classe RDA - Bianca */			
+//ElseIf !lConsul  .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. !BAU->BAU_TIPPRE $ 'PAT,LAB,CLI,CDI,GEN,OUT,UCM' .AND. BR8->BR8_ATOCOP == "1"//BAU->BAU_TIPPRE <> 'PAT'//OUT adicionado referente ao chamado 10108109
+ElseIf !lConsul  .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. !BAU->BAU_TIPPRE $ ( cParamRDA + ',PAT,LAB,CDI,GEN,OUT,UCM') .AND. BR8->BR8_ATOCOP == "1"//BAU->BAU_TIPPRE <> 'PAT'//OUT adicionado referente ao chamado 10108109
+	
+
+	aResumo[1][6]  += TRBOP->BD6_QTDPRO
+	aResumo[1][7]  += ROUND(nVlrItem,2)
+	aResumo[1][11] += ROUND(nVlrTax,2)
+	if nPercIns > 0
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+	aResTot[1][6]  += TRBOP->BD6_QTDPRO
+	aResTot[1][7]  += ROUND(nVlrItem,2)
+	aResTot[1][11] += ROUND(nVlrTax,2)
+	
+ElseIf lConsul  .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE $ 'HOS,HDI'
+	
+	aResumo[1][6]  += TRBOP->BD6_QTDPRO
+	aResumo[1][7]  += ROUND(nVlrItem,2)
+	aResumo[1][11] += ROUND(nVlrTax,2)
+	if nPercIns > 0 .AND. BAU->BAU_RECPRO == "1"
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+	aResTot[1][6]  += TRBOP->BD6_QTDPRO
+	aResTot[1][7]  += ROUND(nVlrItem,2)
+	aResTot[1][11] += ROUND(nVlrTax,2)
+	                                               
+// Lais - Consultas em PA passam para Servicos Medicos
+ElseIf lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE $ 'PAT,GEN'
+	
+	aResumo[1][2]  += TRBOP->BD6_QTDPRO
+	aResumo[1][3]  += ROUND(nVlrItem,2)
+	aResumo[1][11] += ROUND(nVlrTax,2)
+	if nPercIns > 0 .AND. BAU->BAU_RECPRO == "1"
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+	aResTot[1][2]  += TRBOP->BD6_QTDPRO
+	aResTot[1][3]  += ROUND(nVlrItem,2)
+	aResTot[1][11] += ROUND(nVlrTax,2)
+	
+ElseIf !lConsul .AND. !(alltrim(BD7->BD7_CODUNM) $ 'VMT,FIL,VMD,VTX') .AND. BAU->BAU_TIPPRE $ 'PAT,GEN'
+	
+	aResumo[2][4]  += TRBOP->BD6_QTDPRO
+	aResumo[2][5]  += ROUND(nVlrItem,2)
+	aResumo[2][11] += ROUND(nVlrTax,2)
+	if nPercIns > 0
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+	aResTot[2][4]  += TRBOP->BD6_QTDPRO
+	aResTot[2][5]  += ROUND(nVlrItem,2)
+	aResTot[2][11] += ROUND(nVlrTax,2)
+	
+ElseIf !lConsul.AND. !(alltrim(BD7->BD7_CODUNM) $ 'HM,HMR,PA,AUX,VMT,FIL,VMD,VTX') .AND. BAU->BAU_TIPPRE $ 'HOS,HDI'
+	
+	aResumo[4][4]  += TRBOP->BD6_QTDPRO
+	aResumo[4][5]  += ROUND(nVlrItem,2)
+	aResumo[4][11] += ROUND(nVlrTax,2)
+	
+	aResTot[4][4]  += TRBOP->BD6_QTDPRO
+	aResTot[4][5]  += ROUND(nVlrItem,2)
+	aResTot[4][11] += ROUND(nVlrTax,2)
+	
+	DbselectArea("BE4")
+	If MsSeek(xFilial("BE4")+cCodOpe+cQuebLDP+cQuebPEG+cQuebGUI)
+		aResumo[4][10] += BE4->BE4_DIASIN
+		aResTot[4][10] += BE4->BE4_DIASIN
+	EndIf
+	if nPercIns > 0
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+ElseIf !lConsul.AND. alltrim(BD7->BD7_CODUNM) $ 'HM#HMR#PA#AUX' .AND. BAU->BAU_TIPPRE $ 'HOS,HDI'
+	
+	aResumo[1][4]  += TRBOP->BD6_QTDPRO
+	aResumo[1][5]  += ROUND(nVlrItem,2)
+	aResumo[1][11] += ROUND(nVlrTax,2)
+	
+	aResTot[1][4]  += TRBOP->BD6_QTDPRO
+	aResTot[1][5]  += ROUND(nVlrItem,2)
+	aResTot[1][11] += ROUND(nVlrTax,2)
+	
+	DbselectArea("BE4")
+	If MsSeek(xFilial("BE4")+cCodOpe+cQuebLDP+cQuebPEG+cQuebGUI)
+		aResumo[1][10] += BE4->BE4_DIASIN
+		aResTot[1][10] += BE4->BE4_DIASIN
+	EndIf
+	if nPercIns > 0
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+ElseIf !lConsul .AND. !(alltrim(BD7->BD7_CODUNM) $ 'HM,HMR,VMT,FIL,VMD') .AND. BAU->BAU_TIPPRE = "LAB"
+	
+	aResumo[5][4]  += TRBOP->BD6_QTDPRO
+	aResumo[5][5]  += ROUND(nVlrItem,2)
+	aResumo[5][11] += ROUND(nVlrTax,2)
+	
+	aResTot[5][4]  += TRBOP->BD6_QTDPRO
+	aResTot[5][5]  += ROUND(nVlrItem,2)
+	aResTot[5][11] += ROUND(nVlrTax,2)
+	
+	if nPercIns > 0 .AND. AllTrim(BD7->BD7_CODUNM) $ 'AUX#PA'
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+
+/* 197373 Alteração Classe RDA - Bianca */			
+//ElseIf !lConsul .AND. !(alltrim(BD7->BD7_CODUNM) $ 'HM ,HMR,VMT,FIL,VMD') .AND. BAU->BAU_TIPPRE $ "CLI,CDI,OUT,UCM"//OUT adicionado referente ao chamado 10108109
+ElseIf !lConsul .AND. !(alltrim(BD7->BD7_CODUNM) $ 'HM ,HMR,VMT,FIL,VMD') .AND. BAU->BAU_TIPPRE $ (cParamRDA + ",CDI,OUT,UCM")//OUT adicionado referente ao chamado 10108109
+
+	aResumo[6][4]  += TRBOP->BD6_QTDPRO
+	aResumo[6][5]  += ROUND(nVlrItem,2)
+	aResumo[6][11] += ROUND(nVlrTax,2)
+	
+	aResTot[6][4]  += TRBOP->BD6_QTDPRO
+	aResTot[6][5]  += ROUND(nVlrItem,2)
+	aResTot[6][11] += ROUND(nVlrTax,2)
+	
+	if nPercIns > 0 .AND. AllTrim(BD7->BD7_CODUNM) $ 'AUX#PA'
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+	
+ElseIf !lConsul .AND.  BAU->BAU_TIPPRE = "LAB"  .and.  ((!(alltrim(BD7->BD7_CODUNM) $ 'HM,HMR') .AND. BR8->BR8_ATOCOP == "1" ) .or. ((alltrim(BD7->BD7_CODUNM) $ 'HM,HMR') .AND. (BR8->BR8_ATOCOP == "2" .or. Empty(BR8->BR8_ATOCOP)) )) //NELSON INCLUIU
+	
+	aResumo[5][4]  += TRBOP->BD6_QTDPRO
+	aResumo[5][5]  += ROUND(nVlrItem,2)
+	aResumo[5][11] += ROUND(nVlrTax,2)
+	
+	aResTot[5][4]  += TRBOP->BD6_QTDPRO
+	aResTot[5][5]  += ROUND(nVlrItem,2)
+	aResTot[5][11] += ROUND(nVlrTax,2)
+	
+/* 197373 Alteração Classe RDA - Bianca */		
+//ElseIf !lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM ,HMR' .AND. BAU->BAU_TIPPRE $ "CLI,CDI,OUT,UCM" .AND. (BR8->BR8_ATOCOP == "2" .or. Empty(BR8->BR8_ATOCOP))// NELSON INCLUIU//OUT adicionado referente ao chamado 10108109
+ElseIf !lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM ,HMR' .AND. BAU->BAU_TIPPRE $ (cParamRDA+ ",CDI,OUT,UCM") .AND. (BR8->BR8_ATOCOP == "2" .or. Empty(BR8->BR8_ATOCOP))// NELSON INCLUIU//OUT adicionado referente ao chamado 10108109
+	
+	aResumo[6][4]  += TRBOP->BD6_QTDPRO
+	aResumo[6][5]  += ROUND(nVlrItem,2)
+	aResumo[6][11] += ROUND(nVlrTax,2)
+	
+	aResTot[6][4]  += TRBOP->BD6_QTDPRO
+	aResTot[6][5]  += ROUND(nVlrItem,2)
+	aResTot[6][11] += ROUND(nVlrTax,2)      
+	
+
+/* 197373 Alteração Classe RDA - Bianca */		
+//ElseIf !lConsul .AND. BAU->BAU_TIPPRE $ "CLI,CDI,OUT,UCM" .AND. BAU->BAU_RECPRO == "1" .and. BR8->BR8_ATOCOP = '1'//OUT adicionado referente ao chamado 10108109
+ElseIf !lConsul .AND. BAU->BAU_TIPPRE $ (cParamRDA + ",CDI,OUT,UCM") .AND. BAU->BAU_RECPRO == "1" .and. BR8->BR8_ATOCOP = '1'//OUT adicionado referente ao chamado 10108109
+
+
+	aResumo[2][4]  += TRBOP->BD6_QTDPRO
+	aResumo[2][5]  += ROUND(nVlrItem,2)
+	aResumo[2][11] += ROUND(nVlrTax,2)
+	
+	aResTot[2][4]  += TRBOP->BD6_QTDPRO
+	aResTot[2][5]  += ROUND(nVlrItem,2)
+	aResTot[2][11] += ROUND(nVlrTax,2)
+	
+	
+ElseIf !lConsul .AND. !(alltrim(BD7->BD7_CODUNM) $ 'HM,VMT,FIL') .AND. BAU->BAU_TIPPRE $ "MED,ANE"
+	
+	aResumo[1][4]  += TRBOP->BD6_QTDPRO
+	aResumo[1][5]  += ROUND(nVlrItem,2)
+	aResumo[1][11] += ROUND(nVlrTax,2)
+	
+	aResTot[1][4]  += TRBOP->BD6_QTDPRO
+	aResTot[1][5]  += ROUND(nVlrItem,2)
+	aResTot[1][11] += ROUND(nVlrTax,2)
+	
+	if nPercIns > 0
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+ElseIf !lConsul .AND.  BAU->BAU_TIPPRE = "FIS"   .AND. ((!(alltrim(BD7->BD7_CODUNM) $ 'HM,HMR,VMT,FIL') .AND. BR8->BR8_ATOCOP == "1" ) .or. ((alltrim(BD7->BD7_CODUNM) $ 'HM,HMR,VMT,FIL,COP,COR') .AND. BR8->BR8_ATOCOP == "2" ))
+	
+	aResumo[6][4]  += TRBOP->BD6_QTDPRO
+	aResumo[6][5]  += ROUND(nVlrItem,2)
+	aResumo[6][11] += ROUND(nVlrTax,2)
+	
+	aResTot[6][4]  += TRBOP->BD6_QTDPRO
+	aResTot[6][5]  += ROUND(nVlrItem,2)
+	aResTot[6][11] += ROUND(nVlrTax,2) 
+	 
+	if nPercIns > 0 .AND. AllTrim(BD7->BD7_CODUNM) $ 'AUX#PA'
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+ElseIf !lConsul.AND. alltrim(BD7->BD7_CODUNM) == 'FIL' .AND. BAU->BAU_TIPPRE $ 'HOS,HDI' .AND. BAU->BAU_RECPRO <> "1"
+	
+	aResumo[4][8]  += ROUND(nVlrItem,2)
+	aResumo[4][11] += ROUND(nVlrTax,2)
+	
+	aResTot[4][8]  += ROUND(nVlrItem,2)
+	aResTot[4][11] += ROUND(nVlrTax,2)
+	
+	If MsSeek(xFilial("BE4")+cCodOpe+cQuebLDP+cQuebPEG+cQuebGUI)
+		aResumo[4][10] += BE4->BE4_DIASIN
+		
+		aResTot[4][10] += BE4->BE4_DIASIN
+		
+	EndIf   
+
+ElseIf !lConsul.AND. alltrim(BD7->BD7_CODUNM) == 'FIL' .AND. BAU->BAU_TIPPRE $ 'HOS,HDI' .AND. BAU->BAU_RECPRO == "1"
+	
+	aResumo[2][8]  += ROUND(nVlrItem,2)
+	aResumo[2][11] += ROUND(nVlrTax,2)
+	
+	aResTot[2][8]  += ROUND(nVlrItem,2)
+	aResTot[2][11] += ROUND(nVlrTax,2)
+	
+	If MsSeek(xFilial("BE4")+cCodOpe+cQuebLDP+cQuebPEG+cQuebGUI)
+		aResumo[2][10] += BE4->BE4_DIASIN
+		
+		aResTot[2][10] += BE4->BE4_DIASIN
+		
+	EndIf
+	
+ElseIf !lConsul.AND. alltrim(BD7->BD7_CODUNM) == 'FIL' .AND. BAU->BAU_TIPPRE = "LAB"
+	
+	aResumo[5][8]  += ROUND(nVlrItem,2)
+	aResumo[5][11] += ROUND(nVlrTax,2)
+	
+	aResTot[5][8]  += ROUND(nVlrItem,2)
+	aResTot[5][11] += ROUND(nVlrTax,2)
+	
+ElseIf !lConsul.AND. alltrim(BD7->BD7_CODUNM) == 'FIL' .AND. BAU->BAU_TIPPRE $ "MED,ANE"
+	
+	aResumo[5][8]  += ROUND(nVlrItem,2)
+	aResumo[5][11] += ROUND(nVlrTax,2)
+	
+	aResTot[5][8]  += ROUND(nVlrItem,2)
+	aResTot[5][11] += ROUND(nVlrTax,2)
+	
+/* 197373 Alteração Classe RDA - Bianca */			
+//ElseIf !lConsul.AND. alltrim(BD7->BD7_CODUNM) == 'FIL' .AND. BAU->BAU_TIPPRE $ "CLI,FIS,PAT,CDI,GEN,OUT,UCM"//OUT adicionado referente ao chamado 10108109
+ElseIf !lConsul.AND. alltrim(BD7->BD7_CODUNM) == 'FIL' .AND. BAU->BAU_TIPPRE $ (cParamRDA + ",FIS,PAT,CDI,GEN,OUT,UCM")//OUT adicionado referente ao chamado 10108109
+	
+
+	aResumo[6][8]  += ROUND(nVlrItem,2)
+	aResumo[6][11] += ROUND(nVlrTax,2)
+	                                   
+	aResTot[6][8]  += ROUND(nVlrItem,2)
+	aResTot[6][11] += ROUND(nVlrTax,2)	                                   
+	                                    
+ElseIf !lConsul.AND. alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD,VTX' .AND. BAU->BAU_TIPPRE $ 'HOS,HDI' .AND. BAU->BAU_RECPRO <> "1"
+	
+	aResumo[4][9]  += ROUND(nVlrItem,2)
+	aResumo[4][11] += ROUND(nVlrTax,2)
+	
+	aResTot[4][9]  += ROUND(nVlrItem,2)
+	aResTot[4][11] += ROUND(nVlrTax,2)
+	
+	If MsSeek(xFilial("BE4")+cCodOpe+cQuebLDP+cQuebPEG+cQuebGUI)
+		aResumo[4][10] += BE4->BE4_DIASIN
+		
+		aResTot[4][10] += BE4->BE4_DIASIN
+		
+	EndIf
+	
+ElseIf lConsul  .AND. alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD,VTX' .AND. BAU->BAU_TIPPRE $ 'HOS,HDI' .AND. BAU->BAU_RECPRO <> "1"
+	
+	aResumo[4][9]  += ROUND(nVlrItem,2)
+	aResumo[4][11] += ROUND(nVlrTax,2)
+	
+	aResTot[4][9]  += ROUND(nVlrItem,2)
+	aResTot[4][11] += ROUND(nVlrTax,2)
+	
+	If MsSeek(xFilial("BE4")+cCodOpe+cQuebLDP+cQuebPEG+cQuebGUI)
+		aResumo[4][10] += BE4->BE4_DIASIN
+		
+		aResTot[4][10] += BE4->BE4_DIASIN
+		
+	EndIf
+	
+// Lais - Mat/Med/Tx Rec Proprio -> Meios Proprios (Em Ato Principal)
+ElseIf !lConsul.AND. alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD,VTX' .AND. BAU->BAU_TIPPRE $ 'HOS,HDI' .AND. BAU->BAU_RECPRO == "1"
+	
+	aResumo[2][9]  += ROUND(nVlrItem,2)
+	aResumo[2][11] += ROUND(nVlrTax,2)
+	
+	aResTot[2][9]  += ROUND(nVlrItem,2)
+	aResTot[2][11] += ROUND(nVlrTax,2)
+	
+	If MsSeek(xFilial("BE4")+cCodOpe+cQuebLDP+cQuebPEG+cQuebGUI)
+		aResumo[2][10] += BE4->BE4_DIASIN
+		
+		aResTot[2][10] += BE4->BE4_DIASIN
+		
+	EndIf
+	
+ElseIf lConsul  .AND. alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD,VTX' .AND. BAU->BAU_TIPPRE $ 'HOS,HDI' .AND. BAU->BAU_RECPRO == "1"
+	
+	aResumo[2][9]  += ROUND(nVlrItem,2)
+	aResumo[2][11] += ROUND(nVlrTax,2)
+	
+	aResTot[2][9]  += ROUND(nVlrItem,2)
+	aResTot[2][11] += ROUND(nVlrTax,2)
+	
+	If MsSeek(xFilial("BE4")+cCodOpe+cQuebLDP+cQuebPEG+cQuebGUI)
+		aResumo[2][10] += BE4->BE4_DIASIN
+		
+		aResTot[2][10] += BE4->BE4_DIASIN
+		
+	EndIf
+	
+	
+ElseIf !lConsul.AND. alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD' .AND. BAU->BAU_TIPPRE = "LAB"
+	
+	aResumo[5][9]  += ROUND(nVlrItem,2)
+	aResumo[5][11] += ROUND(nVlrTax,2)
+	
+	aResTot[5][9]  += ROUND(nVlrItem,2)
+	aResTot[5][11] += ROUND(nVlrTax,2)
+	
+/* 197373 Alteração Classe RDA - Bianca */		
+//ElseIf !lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD' .AND. BAU->BAU_TIPPRE $ "CLI,MED,ANE,CDI,OUT,UCM" //BAU->BAU_TIPPRE = "CLI" PODE HAVER MEDICAMENTO E MATERIAL PARA MEDICO (Ex. UMA IMOBILIZAÇÃO) NELSON EM 10/07/07//OUT adicionado referente ao chamado 10108109
+ElseIf !lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD' .AND. BAU->BAU_TIPPRE $ (cParamRDA + ",MED,ANE,CDI,OUT,UCM") //BAU->BAU_TIPPRE = "CLI" PODE HAVER MEDICAMENTO E MATERIAL PARA MEDICO (Ex. UMA IMOBILIZAÇÃO) NELSON EM 10/07/07//OUT adicionado referente ao chamado 10108109
+	
+
+	aResumo[6][9]  += ROUND(nVlrItem,2)
+	aResumo[6][11] += ROUND(nVlrTax,2)
+	
+	aResTot[6][9]  += ROUND(nVlrItem,2)
+	aResTot[6][11] += ROUND(nVlrTax,2)
+	
+/* 197373 Alteração Classe RDA - Bianca */		
+//ElseIf lConsul  .AND. alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD' .AND. BAU->BAU_TIPPRE $ "CLI,MED,ANE,CDI,OUT,UCM" //BAU->BAU_TIPPRE = "CLI" PODE HAVER MEDICAMENTO E MATERIAL PARA MEDICO (Ex. UMA IMOBILIZAÇÃO) NELSON EM 10/07/07//OUT adicionado referente ao chamado 10108109
+ElseIf lConsul  .AND. alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD' .AND. BAU->BAU_TIPPRE $ (cParamRDA+ ",MED,ANE,CDI,OUT,UCM") //BAU->BAU_TIPPRE = "CLI" PODE HAVER MEDICAMENTO E MATERIAL PARA MEDICO (Ex. UMA IMOBILIZAÇÃO) NELSON EM 10/07/07//OUT adicionado referente ao chamado 10108109
+
+
+	aResumo[6][9]  += ROUND(nVlrItem,2)
+	aResumo[6][11] += ROUND(nVlrTax,2)
+	
+	aResTot[6][9]  += ROUND(nVlrItem,2)
+	aResTot[6][11] += ROUND(nVlrTax,2)
+	
+ElseIf alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD,VTX' .AND. BAU->BAU_TIPPRE $ "PAT,GEN" .AND. BAU->BAU_RECPRO <> "1"
+	
+	aResumo[6][9]  += ROUND(nVlrItem,2)
+	aResumo[6][11] += ROUND(nVlrTax,2)
+	
+	aResTot[6][9]  += ROUND(nVlrItem,2)
+	aResTot[6][11] += ROUND(nVlrTax,2)
+
+// Lais -> Mat/Med/Tx Rec Proprio -> Meios Proprios (Em Ato Principal) 
+ElseIf alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD,VTX' .AND. BAU->BAU_TIPPRE $ "PAT,GEN" .AND. BAU->BAU_RECPRO == "1"
+	
+	aResumo[2][9]  += ROUND(nVlrItem,2)
+	aResumo[2][11] += ROUND(nVlrTax,2)
+	
+	aResTot[2][9]  += ROUND(nVlrItem,2)
+	aResTot[2][11] += ROUND(nVlrTax,2)       
+
+ElseIf !(alltrim(BD7->BD7_CODUNM) $ 'HM') .AND. BAU->BAU_TIPPRE $ "PAT,GEN" .AND. BAU->BAU_RECPRO == "1"
+	
+	aResumo[2][9]  += ROUND(nVlrItem,2)
+	aResumo[2][11] += ROUND(nVlrTax,2)
+	
+	aResTot[2][9]  += ROUND(nVlrItem,2)
+	aResTot[2][11] += ROUND(nVlrTax,2)   
+
+ElseIf alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD' .AND. BAU->BAU_TIPPRE = "ODO"
+	
+	aResumo[6][9]  += ROUND(nVlrItem,2)
+	aResumo[6][11] += ROUND(nVlrTax,2)
+	
+	aResTot[6][9]  += ROUND(nVlrItem,2)
+	aResTot[6][11] += ROUND(nVlrTax,2)
+
+ElseIf alltrim(BD7->BD7_CODUNM) $ 'VMT,VMD' .AND. BAU->BAU_TIPPRE = "UNI"
+	
+	aResumo[7][9]  += ROUND(nVlrItem,2)
+	aResumo[7][11] += ROUND(nVlrTax,2)
+	
+	aResTot[7][9]  += ROUND(nVlrItem,2)
+	aResTot[7][11] += ROUND(nVlrTax,2)
+	
+ElseIf lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE = "UNI" .AND. BR8->BR8_ATOCOP == "1" 
+	
+	aResumo[3][2]  += TRBOP->BD6_QTDPRO
+	aResumo[3][3]  += ROUND(nVlrItem,2)
+	aResumo[3][11] += ROUND(nVlrTax,2)
+	
+	aResTot[3][2]  += TRBOP->BD6_QTDPRO
+	aResTot[3][3]  += ROUND(nVlrItem,2)
+	aResTot[3][11] += ROUND(nVlrTax,2)
+	
+	if nPercIns > 0 .AND. AllTrim(BR8->BR8_CODPSA) <> '00010073'
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+ElseIf !lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,PA,AUX' .AND. BAU->BAU_TIPPRE = "UNI" .AND. BR8->BR8_ATOCOP == "1"
+	
+	aResumo[3][4]  += TRBOP->BD6_QTDPRO
+	aResumo[3][5]  += ROUND(nVlrItem,2)
+	aResumo[3][11] += ROUND(nVlrTax,2)
+	
+	aResTot[3][4]  += TRBOP->BD6_QTDPRO
+	aResTot[3][5]  += ROUND(nVlrItem,2)
+	aResTot[3][11] += ROUND(nVlrTax,2)
+	
+	if nPercIns > 0
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+ElseIf !lConsul .AND. alltrim(BD7->BD7_CODUNM) <> 'HM' .AND. BAU->BAU_TIPPRE = "UNI" .AND. BR8->BR8_ATOCOP == "1"
+	
+	aResumo[3][4]  += TRBOP->BD6_QTDPRO
+	aResumo[3][5]  += ROUND(nVlrItem,2)
+	aResumo[3][11] += ROUND(nVlrTax,2)
+	
+	aResTot[3][4]  += TRBOP->BD6_QTDPRO
+	aResTot[3][5]  += ROUND(nVlrItem,2)
+	aResTot[3][11] += ROUND(nVlrTax,2)
+	
+	if nPercIns > 0 .AND. AllTrim(BD7->BD7_CODUNM) $ 'AUX#PA'
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif 
+
+ElseIf !lConsul .AND. alltrim(BD7->BD7_CODUNM) <> 'HM' .AND. BAU->BAU_TIPPRE = "UNI" .AND. BR8->BR8_ATOCOP <> "1"
+	
+	aResumo[7][4]  += TRBOP->BD6_QTDPRO
+	aResumo[7][5]  += ROUND(nVlrItem,2)
+	aResumo[7][11] += ROUND(nVlrTax,2)
+	
+	aResTot[7][4]  += TRBOP->BD6_QTDPRO
+	aResTot[7][5]  += ROUND(nVlrItem,2)
+	aResTot[7][11] += ROUND(nVlrTax,2)
+	   
+	if nPercIns > 0 .AND. AllTrim(BD7->BD7_CODUNM) $ 'AUX#PA'
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	
+ElseIf !lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE = "UNI" .AND. BR8->BR8_ATOCOP <> "1"
+	
+	aResumo[7][4]  += TRBOP->BD6_QTDPRO
+	aResumo[7][5]  += ROUND(nVlrItem,2)
+	aResumo[7][11] += ROUND(nVlrTax,2)
+
+	aResTot[7][4]  += TRBOP->BD6_QTDPRO
+	aResTot[7][5]  += ROUND(nVlrItem,2)
+	aResTot[7][11] += ROUND(nVlrTax,2)
+
+ElseIf lConsul .AND. alltrim(BD7->BD7_CODUNM) $ 'HM,HMR' .AND. BAU->BAU_TIPPRE = "UNI" .AND. BR8->BR8_ATOCOP <> "1"
+	
+	aResumo[7][2]  += TRBOP->BD6_QTDPRO
+	aResumo[7][3]  += ROUND(nVlrItem,2)
+	aResumo[7][11] += ROUND(nVlrTax,2)
+	
+	aResTot[7][2]  += TRBOP->BD6_QTDPRO
+	aResTot[7][3]  += ROUND(nVlrItem,2)
+	aResTot[7][11] += ROUND(nVlrTax,2)
+	
+	if nPercIns > 0
+		nRet := (nVlrTax+nVlrItem)*nPercIns/100
+	Endif
+	                                              
+ElseIf SubStr(TRBOP->BD6_CODPRO,1,3) = '800' .AND. (alltrim(BD7->BD7_CODUNM) == 'HMR' .or. alltrim(BD7->BD7_CODUNM) == 'REA') .AND. BAU->BAU_TIPPRE = "ODO"
+	aResumo[8][4]  += TRBOP->BD6_QTDPRO
+	aResumo[8][5]  += ROUND(nVlrItem,2)
+	aResumo[8][11] += ROUND(nVlrTax,2)
+	
+	aResTot[8][4]  += TRBOP->BD6_QTDPRO
+	aResTot[8][5]  += ROUND(nVlrItem,2)
+	aResTot[8][11] += ROUND(nVlrTax,2)
+	                                              
+Else
+	//PLSCRIGEN(xCri,{ {"Procedimento ","@C",10}, {"Composição ","@C",3} ,{"Tipo RDA","@E 999",3}}, " Critica ")
+	Aadd(xCri,{TRBOP->BD6_CODLDP,TRBOP->BD6_CODPEG,TRBOP->BD6_NUMERO,TRBOP->BD6_CODPRO,BD7->BD7_CODUNM , BAU->BAU_TIPPRE,"Não entrou no Resumo" })
+EndIf
+
+//Incrementa o total das Linhas
+For nI:= 1 to Len(aResumo)
+	aResumo[nI][12] := ROUND(aResumo[nI][3]+aResumo[nI][5]+aResumo[nI][7]+aResumo[nI][8]+;
+	aResumo[nI][9]+aResumo[nI][11],2)
+
+Next nI
+
+for nI := 1 to Len(aResTot)
+	aResTot[nI][12] := ROUND(aResTot[nI][3]+aResTot[nI][5]+aResTot[nI][7]+aResTot[nI][8]+;
+	aResTot[nI][9]+aResTot[nI][11],2)
+
+next nI
+
+//Incrementa o total das colunas
+For nJ:= 2 to 12
+	aResumo[9][nJ] := ROUND(aResumo[1][nJ]+aResumo[2][nJ]+aResumo[3][nJ]+aResumo[4][nJ]+aResumo[5][nJ]+;
+	aResumo[6][nJ]+aResumo[7][nJ]+aResumo[8][nJ],2)
+	
+Next nJ
+
+for nJ := 2 to 12
+	aResTot[9][nJ] := ROUND(aResTot[1][nJ]+aResTot[2][nJ]+aResTot[3][nJ]+aResTot[4][nJ]+aResTot[5][nJ]+;
+	aResTot[6][nJ]+aResTot[7][nJ]+aResTot[8][nJ],2)
+
+next nJ
+
+Return nRet
+
+Static Function CriaSX1()
+
+Local aArea   := getArea()
+Local aRegs	:=	{}
+Local cPerg	:=	PADR('RL00045', U_VSTAMSX1(), " ") 
+Local i,j 
+
+// PERGUNTAS DO RL00045
+
+aAdd(aRegs,{cPerg,"01","Prefixo de"                ,"","","mv_ch1","C",03,0,0,"G","","mv_par01","","","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+aAdd(aRegs,{cPerg,"02","Prefixo ate"                ,"","","mv_ch2","C",03,0,0,"G","","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+aAdd(aRegs,{cPerg,"03","Numero Titulo de "                ,"","","mv_ch3","C",tamsx3("E1_NUM")[1],0,0,"G","","mv_par03","","","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+aAdd(aRegs,{cPerg,"04","Numero Titulo Ate "                ,"","","mv_ch4","C",tamsx3("E1_NUM")[1],0,0,"G","","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+aAdd(aRegs,{cPerg,"05","Matricula"                     ,"","","mv_ch5","C", 6,0,0,"G","","mv_par05","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+aAdd(aRegs,{cPerg,"06","Data De   ?","","","mv_ch6","D",08,0,0,"G","","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+aAdd(aRegs,{cPerg,"07","Data Ate  ?","","","mv_ch7","D",08,0,0,"G","","mv_par07","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+aAdd(aRegs,{cPerg,"08","Usuario "                ,"","","mv_ch8","C",17,0,0,"G","","mv_par08","","","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Ajusto o SX1						                                ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+cPerg  := PADR(cPerg, U_VSTAMSX1() )
+If Len(aRegs) > 0
+    For i:=1 to Len(aRegs)
+        If !SX1->(MSSeek(cPerg+aRegs[i,2]))
+            RecLock("SX1",.T.)
+            For j:=1 to FCount()
+                If j <= Len(aRegs[i])
+                    FieldPut(j,aRegs[i,j])
+
+                EndIf
+
+            Next
+            MsUnLock()
+        else
+            RecLock("SX1",.F.)
+            For j:=1 to FCount()
+                If j <= Len(aRegs[i])
+                    FieldPut(j,aRegs[i,j])
+
+                EndIf
+
+            Next
+            MsUnLock()
+            
+        endIf
+    Next i
+EndIf
+  
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Retorno a Area					                                    ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ	
+RestArea(aArea)
+
+Return
+
+Static Function VerCOEmp(cContrato)
+Local aRet := {}
+BHE->(DbSetOrder(1))
+if BHE->(MsSeek(xFilial("BHE")+cContrato))
+	While !BHE->(EOF()) .And. BHE->(BHE_CODINT+BHE_CODIGO+BHE_NUMCON+BHE_VERCON+BHE_SUBCON+BHE_VERSUB+BHE_CODPRO+BHE_VERPRO) == cContrato
+		aadd(aRet,{BHE->BHE_CODPSA,BHE->BHE_YDTINI,BHE->BHE_YDTFIN,BHE->BHE_TXADM,BHE->BHE_VALUS,BHE->BHE_INTADM,BHE->BHE_INTUS,BHE->BHE_VLRCOP})
+		BHE->(DbSkip())
+	Enddo
+Endif
+Return(aRet)
+
+Static Function VerifGuia(aCP,cTipPre,cCodPro,nVlrUS,nVlrTX,dDatPro,cCodUnm)
+Local cTipInt  := GetNewPar("MV_PLSTPIN","OPE")
+Local aCPEmp   := {}
+Local nValUs   := 0
+Local nTaxa    := 0
+Local I        := 0 
+
+// Somente analisa itens com US
+if !AllTrim(cCodUnm) $ "U.S"
+	Return .T.
+Endif
+
+For I:= 1 to Len(aCP)
+	if !Alltrim(cCodPro) $ "00010014#00010073#00010015#00010049#00011002#00013005#00010022#00010065#00015105#00015148"
+		if ! Substr(aCP[I,1],1,2) <> Substr(cCodPro,1,2)
+			aadd(aCPEmp,aCp[I])
+		Endif
+	Else
+		if ! AllTrim(aCP[I,1]) <> AllTrim(cCodPro)
+			aadd(aCPEmp,aCp[I])
+		Endif
+	Endif
+Next I
+
+For I:= 1 to Len(aCPEmp)
+	If 	!Empty(aCpEmp[I,2]) .AND. ((Empty(aCpEmp[I,3]) .AND. aCpEmp[I,2] <= dDatPro) .OR. (!Empty(aCpEmp[I,3]) .AND. dDatPro <= aCpEmp[I,3] .AND. dDatPro >= aCpEmp[I,2]))
+		If cTipPre = cTipInt
+			nTaxa :=aCpEmp[I,6]
+			nValUs:=aCpEmp[I,7]
+		Else
+			nTaxa :=aCpEmp[I,4]
+			If aCpEmp[I,8] <> 0
+				nValCop := aCpEmp[I,8]
+			Else
+				nValUs  := aCpEmp[I,5]
+			EndIf
+		Endif
+		
+	EndIf
+Next I
+
+if (Round(nVlrUS,2) == Round(nValUs,2) .And. (noRound(nVlrTX,1) == noRound(nTaxa,1) .OR. Round(nVlrTX,1) == Round(nTaxa,1) .or. Round(nVlrTX,1) == noRound(nTaxa,1) .or. Round(nVlrTX,1) == noRound(nTaxa,1)))
+	lRet:= .T.
+Else
+	lRet := .F.
+Endif
+
+
+Return(lRet)
+
+
+Static Function Resumo_Tot(aResTot,nVlrBloq)
+Local lListaCab := .F., lResumo := .T.
+Local nI        := 0                                  
+Local cResCab1 := Replicate("-",220)
+Local cResCab2 := "|DESCRICAO               |      CONSULTAS     |        SERVIÇOS      |     TRATAMENTO HOSP. |              |     VLR      |        |      TAXA   |     TOTAL   |"
+Local cResCab3 := "|                        | QTD     |    VLR   |  QTD      |     VLR  |  QTD      |   VLR    |   VLR FIL    |   MAT/MED    | DIARIAS|      ADM    |             |"
+//rotina para impressão do resumo
+
+RIntPag(.T., cTitulo, .F., .T. ,aResTot, .F.)
+
+nLi += 1        
+@ nLi, nColuna PSay "Qtd Total de Guias..:"+Transform(nQtdGTot,"@E 999,999,999")
+nLi += 1        
+@ nLi, nColuna PSay "RESUMO TOTAL....."
+nLi+=2
+@ nLi, nColuna PSay cResCab1      
+nLi++
+@ nLi, nColuna PSay cResCab2
+nLi++
+@ nLi, nColuna PSay cResCab3
+nLi++
+@ nLi, nColuna PSay cResCab1
+nLi++
+@ nLi, nColuna PSay "ATOS PRINCIPAIS"
+nLi++
+//imprime atos principais
+For nI:= 1 to 3   
+	@ nLi, nColuna+5 PSay aResTot[nI][1]+Space(05)+Strzero(aResTot[nI][2],5)+Space(03)+Transform(aResTot[nI][3],_pMoed2)+;
+	Space(03)+Strzero(aResTot[nI][4],5)+Space(03)+Transform(aResTot[nI][5],_pMoed2)+Space(03)+Strzero(aResTot[nI][6],5)+Space(03)+;
+	Transform(aResTot[nI][7],_pMoed2)+Space(03)+Transform(aResTot[nI][8],_pMoed2)+Space(03)+Transform(aResTot[nI][9],_pMoed2)+;
+	Space(03)+strzero(aResTot[nI][10],5)+Space(03)+Transform(aResTot[nI][11],_pMoed2)+Space(03)+;
+	Transform(aResTot[nI][12],_pMoed2) 
+	nLi++
+Next nI
+//imprime atos auxiliares
+@ nLi, nColuna PSay "ATOS AUXILIARES"
+nLi++
+For nI:= 4 to 7 
+
+@ nLi, nColuna+5 PSay aResTot[nI][1]+Space(05)+Strzero(aResTot[nI][2],5)+Space(03)+Transform(aResTot[nI][3],_pMoed2)+;
+	Space(03)+Strzero(aResTot[nI][4],5)+Space(03)+Transform(aResTot[nI][5],_pMoed2)+Space(03)+Strzero(aResTot[nI][6],5)+Space(03)+;
+	Transform(aResTot[nI][7],_pMoed2)+Space(03)+Transform(aResTot[nI][8],_pMoed2)+Space(03)+Transform(aResTot[nI][9],_pMoed2)+;
+	Space(03)+Strzero(aResTot[nI][10],5)+Space(03)+Transform(aResTot[nI][11],_pMoed2)+Space(03)+;
+	Transform(aResTot[nI][12],_pMoed2)
+	nLi++
+Next nI
+//OUTROS ATOS
+
+@ nLi, nColuna PSay aResTot[8][1]+Space(10)+Strzero(aResTot[8][2],5)+Space(03)+Transform(aResTot[8][3],_pMoed2)+;
+Space(03)+Strzero(aResTot[8][4],5)+Space(03)+Transform(aResTot[8][5],_pMoed2)+Space(03)+Strzero(aResTot[8][6],5)+Space(03)+;
+Transform(aResTot[8][7],_pMoed2)+Space(03)+Transform(aResTot[8][8],_pMoed2)+Space(03)+Transform(aResTot[8][9],_pMoed2)+;
+Space(03)+Strzero(aResTot[8][10],5)+Space(03)+Transform(aResTot[8][11],_pMoed2)+Space(03)+;
+Transform(aResTot[8][12],_pMoed2)
+nLi++ 
+
+//TOTAL DAS COLUNAS              
+
+@ nLi, nColuna PSay aResTot[9][1]+Space(10)+Strzero(aResTot[9][2],5)+Space(03)+Transform(aResTot[9][3],_pMoed2)+;
+Space(03)+Strzero(aResTot[9][4],5)+Space(03)+Transform(aResTot[9][5],_pMoed2)+Space(03)+Strzero(aResTot[9][6],5)+Space(03)+;
+Transform(aResTot[9][7],_pMoed2)+Space(03)+Transform(aResTot[9][8],_pMoed2)+Space(03)+Transform(aResTot[9][9],_pMoed2)+;
+Space(03)+Strzero(aResTot[9][10],5)+Space(03)+Transform(aResTot[9][11],_pMoed2)+Space(03)+;
+Transform(aResTot[9][12],_pMoed2)
+nLi++
+If nVlrBloq > 0
+	nLi++
+	@ nLi, nColuna PSay "VALOR TOTAL DE NOTAS BLOQUEADAS ---------- "+ Transform(nVlrBloq,_pMoed2)
+	nLi++
+EndIf
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//?Imprime rodade padrao do produto Microsiga                         ?
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Return
+ 
