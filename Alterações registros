@@ -20,3 +20,11 @@ UPDATE SE1010 SET E1_SALDO = 0, E1_BAIXA = '20231001'
 -> NCC = Crédito do beneficiar
 -> FT = faturamento -> cobranças em geral da unimed
 -> Existe a modalidade de baixar um valor de uma NFF de uma NCC, mas nesse caso a solicitante decidiu cancelar
+
+
+-- Cancelar registro
+r_e_c_d_e_l = r_e_c_n_o , d_e_l_e_t_ ='*'
+
+-- Descancelar 
+
+r_e_c_d_e_l = 0   , d_e_l_e_t =' '
