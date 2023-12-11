@@ -1,0 +1,86 @@
+Levantamento itens VMD e VMT - Intercambio: 
+
+="update bd6010 bd6 set bd6_vlrtpf = "&SUBSTITUIR(TRUNCAR(R30;2);",";".")&", bd6_vlrbpf ="&SUBSTITUIR(TRUNCAR(R30-S30;2);",";".")&", bd6_vlrtad= "&
+SUBSTITUIR(TRUNCAR(S30;2);",";".")&" where bd6.R_E_C_N_O_ = "&AB30&" ;"
+
+="update bd7010 bd7 set bd7_vlrtpf = "&SUBSTITUIR(TRUNCAR(R1650;2);",";".")&", bd7_vlrbpf ="&SUBSTITUIR(TRUNCAR(R1650-S1650;2);",";".")&",bd7_vlrtad= "&
+SUBSTITUIR(TRUNCAR(S1653;2);",";".")&" where bd7.R_E_C_N_O_ = "&AC1653&" ;"
+
+
+
+-> para gerar a consulta: 
+select bd6_anopag||'\'||bd6_mespag COMPETENCIA,
+       u_data(bd6_dtdigi) DTDIGI,
+       u_data(bd6_datpro) DATPRO,
+       bd6_seqpf SEQPF,
+       bd6_codemp CODEMP,
+       bd6_opeori OPEORI,
+       bd6_codpeg CODPEG,
+       bd6_numero NUMERO,
+       bd6_codldp CODLDP,
+       bd6_fase FASE,
+       bd6_codpro CODPRO,
+       BD6_PREFIX PREFIX,
+       BD6_NUMTIT NUMTIT,
+       bd6_qtdpro QTDPRO,
+       bd6_vlrapr,
+       bd6_vlrtpf,
+       round((bd6_vlrapr * bd6_qtdpro)+ round((bd6_vlrapr * bd6_qtdpro) * (bd6_pertad/100),2),2) VLRTPF_CALC,
+       round((bd6_vlrapr * bd6_qtdpro) * (bd6_pertad/100),2) VLRTAD_CALC,
+       bd6_vlrtad,
+       bd6_vlrbpf,
+       bd6_vlrpf,
+       bd6_vlrpag,
+       bd6_vlrbpr Valor_contr,
+       bd7_codunm CODUNM,
+       bd6.r_e_c_n_o_ BD6_RECNO ,
+       bd7.r_e_c_n_o_ BD7_RECNO
+       --bd6.*
+       /*bd6_codtab TAB_PAG,
+       bd6_cdtbrc TAB_COB,
+       (
+       SELECT sum(bd4.bd4_valref) FROM BD4010 BD4 WHERE BD4.BD4_FILIAL = ' ' AND BD4.D_E_L_E_T_ = ' '
+       and bd4_codpro = bd6_codpro
+       and bd4_codtab = '0055' || bd6_cdtbrc
+       and bd4.bd4_vigfim = ' '
+       ) VLR_TAB_COB,
+       (
+       SELECT sum(bd4.bd4_valref) FROM BD4010 BD4 WHERE BD4.BD4_FILIAL = ' ' AND BD4.D_E_L_E_T_ = ' '
+       and bd4_codpro = bd6_codpro
+       and bd4_codtab = '0055' || bd6_codtab
+       and bd4.bd4_vigfim = ' '
+       ) VLR_TAB_PAG,
+       */
+from bd6010 bd6, bd7010 bd7
+where bd6_filial = ' '
+and bd7_filial = ' '
+and BD6.BD6_FILIAL = ' '
+AND BD6.D_E_L_E_T_ = ' '
+AND BD7.D_E_L_E_T_ = ' '
+AND BD6.BD6_FILIAL = BD7.BD7_FILIAL
+AND BD6.BD6_CODOPE = BD7.BD7_CODOPE
+AND BD6.BD6_CODPEG = BD7.BD7_CODPEG
+AND BD6.BD6_NUMERO = BD7.BD7_NUMERO
+AND BD6.BD6_CODPRO = BD7.BD7_CODPRO
+AND BD6.BD6_SEQUEN = BD7.BD7_SEQUEN
+and bd6_codope = '0055'
+--and bd6_codpeg = '00707381'
+--and bd6_numero = '00000001'
+and bd6_codldp IN ('0000','0001','0004')
+and bd6_fase >= '3'
+and bd6_prefix = ' '
+and bd6_numtit = ' '
+and bd6_dtdigi >= '20230501'
+--and bd6_seqpf <> ' '
+and bd6_codemp = '9801'
+and bd6_libera <> '1'
+and bd6_situac = '1'
+--and round((bd6_vlrapr * bd6_qtdpro)+ round((bd6_vlrapr * bd6_qtdpro) * (bd6_pertad/100),2),2) <> bd6_vlrtpf
+--and bd6_vlrtpf > 0
+and bd6.d_e_l_e_t_ = ' '
+and bd6.bd6_blocpa <> '1'
+and bd7_codunm in ('VMT', 'VMD')
+--and bd6_datpro < '20230301'
+order by bd6_codpeg, bd6_numero
+
+
