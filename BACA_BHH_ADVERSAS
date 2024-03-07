@@ -1,0 +1,213 @@
+#Include 'Topconn.ch'
+#Include 'Fileio.ch'
+#Include 'RWMake.ch'
+#Include 'Totvs.ch'
+#Include 'Tbiconn.ch'
+
+
+//Colunas ARQUIVO CSV
+#DEFINE SEPARADOR 			";"       
+		//Tamanho Linha Arquivo CSV
+#DEFINE TAM_LIN_CSV	150
+
+/*ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ºPrograma  ³ BACA_53  º Autor ³ Andrei Krug º Data ³  06/03/24               º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏ/ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDescricao ³ Rotina que IMPORTA situações adversas DE csv               º±±
+±±     chamado 268959                                                    ¹±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
+User Function BACA_53(aParam) 
+
+
+Local cSQL		:= ""
+Local cSQL1	    := ""
+Local cSQL3	    := ""
+Local cSQL4	    := ""
+Local cSQL5	    := ""
+Local cItem     := ""
+LOCAL cUpd      := ""
+LOCAL cUpd1     := ""
+LOCAL cUpd2     := ""
+Local cNivel    := ""
+
+Local oProcess
+Local cPerg		 :=  ""
+Local cCadastro	 := "Atualização da tabela BA1 e criação BHH"
+Local cDescRot	 := ""
+Local bProcess 	 := {||}
+Local aTab		 := {"BA1", "BHH"}
+Local aInfoCustom := {}    
+ 
+Private lAuto		 := ( ValType(aParam) = "A" )
+
+If lAuto              
+
+    Prepare Environment Empresa aParam[ 1, 1 ] Filial aParam[ 1, 2 ] Modulo 'PLS'
+
+    cArquivo := "c:\temp\Arquivo.txt"
+
+    BatchProcess( 	cCadastro, cCadastro, "BACA_53", { || Executa(oProcess, cArquivo , lAuto ) }, { || .F. }  ) 
+Else
+                
+    cPerg := PadR("BACA_53", Len(SX1->X1_GRUPO), "")
+    CriaSx1(cPerg)
+    Pergunte(cPerg,.F.)
+      
+    aAdd( aInfoCustom, { "Cancelar",            	{ |oPanelCenter| oPanelCenter:oWnd:End() }, 	"CANCEL"	})
+        
+    bProcess := {|oProcess| Executa(oProcess, MV_PAR01, lAuto ) }
+
+    cDescRot := " Atualização da tabela BA1 e criação BHH" 
+
+    oProcess := tNewProcess():New("BACA_53",cCadastro,bProcess,cDescRot,cPerg,aInfoCustom, .T.,5, "", .T. )
+        
+EndIf	
+
+Return
+ 
+Static Function Executa(oProcess, cArquivo,  lAuto)
+                                    
+  		Local aLinha   := {}
+		//Local aTipoMov := {}
+		//Local aRetLocal:= {}
+		Local nCont		:= 0 
+
+        DBSELECTAREA('SXU')
+		dbsetorder(2)
+        oProcess:SaveLog( "Processando o arquivo  " + cArquivo)
+  		oProcess:SaveLog( "Inicio da Execucao" )
+  		If FT_FUSE( cArquivo ) <> -1  // importou o arquivo
+	
+			nCont := 0
+			
+			FT_FGOTOP() //Posiciona na Linha 1 do arquivo
+	
+			While !Ft_FEof() //enquanto for <> de final do arquivo 
+	
+				nCont++
+				
+				cBuff := AllTrim( FT_FREADLN() )  // FT_FREADLN LER PRIMEIRA LINHA  e joga para a variavel 
+                cBuff  := strtran(cBuff,";;","; ;")
+
+	            aLinha :=  StrTokArr(cBuff,";") // Cria um Array , separa ; e atribui para aLinha
+
+				/* maia layout nao tem numero de colunas corretas 
+				If	Len(cBuff) <> TAM_LIN_CSV
+					
+						cMsg := "Linha " + cValToChar(nCont) + " Com estrutura inconsistente" + CRLF
+						cMsg += "Colunas Lidas: " + cValToChar(Len(cBuff)) + CRLF                      
+					
+ 						IF lAuto == .F.
+							Aviso( "Atenção!",cMsg, { "OK" } )
+							Return ( Nil )
+						ELSE
+					  		ConOut("RT00106 - ERRO " + cMsg + " " + DtoC(dDataBase) +  " Hora: " + SUBSTR( TIME(),1,2 ) + ":" + SUBSTR( TIME(),4,2 ) + ":" + SUBSTR(TIME(),7,2) )
+							Return ( Nil )
+					    Endif
+				EndIf */
+
+                if len(aLinha) > 0
+				   
+					//" Matricula=>" + aLinha[14] + 
+					//cString := REPLACE(aLinha[14] , "." , "")
+                    
+                    //cString := REPLACE(cString , "-" , "")
+                    dbSelectArea("BA1")
+                    dbsetorder(2) // Pegar pelo Indicie 2 
+                    //IF dbseek(XFilial('BA1')+ cString) //0.055.2832.000001-02.4
+                    IF dbseek(XFilial('BA1')+ '0055' + SUBSTRING(aLinha[10],7,4) + SUBSTRING(aLinha[10],12,6) + SUBSTRING(aLinha[10],19,2) + SUBSTRING(aLinha[10],22,1) )
+                     oProcess:SaveLog( "Verificando Beneficiario"  + " Empresa" + BA1->BA1_CODEMP + " Matricula=>" + BA1->BA1_MATRIC + " SubContrato=>" +  BA1->BA1_SUBCON + " Vida=>" +  BA1->BA1_MATVID+ " Tp Reg=>" +  BA1->BA1_TIPREG + " Digito=>" +  BA1->BA1_DIGITO + " Data=>"  + DtoC(dDataBase) +  " Hora: " + SUBSTR( TIME(),1,2 ) + ":" + SUBSTR( TIME(),4,2 ) + ":" + SUBSTR(TIME(),7,2) ) 
+
+                    //Atualizando os dados
+                        dbSelectArea("BHH")
+                        dbsetorder(1)
+						// BHH_FILIAL+BHH_CODINT+BHH_CODEMP+BHH_MATRIC+BHH_TIPREG+BHH_CODSAD 
+                          if !dbseek(xFilial("BHH") + BA1->BA1_CODINT + BA1->BA1_CODEMP + BA1->BA1_MATRIC + BA1->BA1_TIPREG  + '080')
+							BHH->(Reclock("BHH",.T.))
+                            BHH->BHH_FILIAL = xFilial("BHH")
+                            BHH->BHH_CODINT = BA1->BA1_CODINT
+                            BHH->BHH_CODEMP = BA1->BA1_CODEMP
+                            BHH->BHH_MATRIC = BA1->BA1_MATRIC
+                            BHH->BHH_TIPREG = BA1->BA1_TIPREG
+                            BHH->BHH_VIGDE  = stod('20240301')
+                            BHH->BHH_CODSAD = '080'
+                            BHH->BHH_OBS1   = ' '
+							BHH->BHH_OBS2   = ' '
+                            BHH->(MsUnlock())
+                            oProcess:SaveLog( "Criando Situações adversas (BHH) " + "080" + " Empresa" + BA1->BA1_CODEMP + " Matricula=>" + BA1->BA1_MATRIC + " SubContrato=>" +  BA1->BA1_SUBCON + " Vida=>" +  BA1->BA1_MATVID+ " Tp Reg=>" +  BA1->BA1_TIPREG + " Digito=>" +  BA1->BA1_DIGITO + " Data=>"  + DtoC(dDataBase) +  " Hora: " + SUBSTR( TIME(),1,2 ) + ":" + SUBSTR( TIME(),4,2 ) + ":" + SUBSTR(TIME(),7,2)) 
+ 
+                        else            
+                            BHH->(Reclock("BHH",.F.))
+                            BHH->BHH_FILIAL = xFilial("BHH")
+                            BHH->BHH_CODINT = BA1->BA1_CODINT
+                            BHH->BHH_CODEMP = BA1->BA1_CODEMP
+                            BHH->BHH_MATRIC = BA1->BA1_MATRIC
+                            BHH->BHH_TIPREG = BA1->BA1_TIPREG
+                            BHH->BHH_VIGDE  = stod('20240301')
+                            BHH->BHH_CODSAD = '080'
+                            BHH->BHH_OBS1   = ' '
+							BHH->BHH_OBS2   = ' ' 
+                            BHH->(MsUnlock())
+                            oProcess:SaveLog( "Criando Situações adversas (BHH) " + "080" + " Empresa" + BA1->BA1_CODEMP + " Matricula=>" + BA1->BA1_MATRIC + " SubContrato=>" +  BA1->BA1_SUBCON + " Vida=>" +  BA1->BA1_MATVID+ " Tp Reg=>" +  BA1->BA1_TIPREG + " Digito=>" +  BA1->BA1_DIGITO + " Data=>"  + DtoC(dDataBase) +  " Hora: " + SUBSTR( TIME(),1,2 ) + ":" + SUBSTR( TIME(),4,2 ) + ":" + SUBSTR(TIME(),7,2)) 
+                        Endif 
+
+                        IF lAuto == .F. 
+                            oProcess:IncRegua2( "Importando Situações Adversas Empresa" +  BA1->BA1_CODEMP + " Matricula=>" + BA1->BA1_MATRIC + " SubContrato=>" +  BA1->BA1_SUBCON + " Vida=>" +  BA1->BA1_MATVID+ " Tp Reg=>" +  BA1->BA1_TIPREG + " Digito=>" +  BA1->BA1_DIGITO + " Data=>"  + DtoC(dDataBase) +  " Hora: " + SUBSTR( TIME(),1,2 ) + ":" + SUBSTR( TIME(),4,2 ) + ":" + SUBSTR(TIME(),7,2))     
+                        ELSE
+                            ConOut("Importando Situações Adversas Empresa" + BA1->BA1_CODEMP + " Matricula=>" + BA1->BA1_MATRIC + " SubContrato=>" +  BA1->BA1_SUBCON + " Vida=>" +  BA1->BA1_MATVID+ " Tp Reg=>" +  BA1->BA1_TIPREG + " Digito=>" +  BA1->BA1_DIGITO + " Data=>"  + DtoC(dDataBase) +  " Hora: " + SUBSTR( TIME(),1,2 ) + ":" + SUBSTR( TIME(),4,2 ) + ":" + SUBSTR(TIME(),7,2) ) 
+                        Endif
+                    endif
+				Endif
+				
+				FT_FSKIP()
+	
+			EndDo
+			
+		Else    
+		
+			cMsg := "Erro ao tentar abrir o arquivo " + cArquivo + CRLF
+			IF lAuto == .F.
+				Aviso( cMsg, { "OK" } )
+			ELSE
+		  		ConOut("BACA_53 - ERRO " + cMsg + " " + DtoC(dDataBase) +  " Hora: " + SUBSTR( TIME(),1,2 ) + ":" + SUBSTR( TIME(),4,2 ) + ":" + SUBSTR(TIME(),7,2) )
+		    Endif
+		EndIf
+	
+	    oProcess:SaveLog( "Final da Execucao" )
+		FT_FUSE()//Fecha o arquivo aberto
+		
+Return
+
+Static Function CriaSx1(cPerg)
+
+	//Local cPerg  := PadR("RT00106",Len(SX1->X1_GRUPO))
+	Local aPerg  := {}
+                
+	dbSelectArea("SX1")
+	dbSetOrder(1)
+     
+
+            // Nome Pergunta, Ordem      Texto Pergunta                       , Texto Pergunta Espanho, Texto Pergunta Ingles, MV    ,Tipo, Tam, Dec,  	Presel , G=Get/C=Combo, Validacao  , Var01                       Def01,            , Def02        , Def03       , Def04          , Def05                 F3
+    // aadd(aRegs,{cPerg      ,"03"      ,"Motivo de Baixa     ?"            ,""                     ,""                     ,"MV_CH3","C"  ,03    ,0      ,0   ,"G"          ,""          ,"mv_par03",            "","","","",""         ,"","","",""  ,"","","",""    ,"","","",""    ,"","","","",  "","","","MBX","","","","",""})
+          
+	aAdd(aPerg,{cPerg        ,"01"       ,"Diretorio\Nome do Arquivo        ",""                     ,""                     ,"MV_CH1","C",  60,    0,     0   ,  "G"         ,  ""       ,"MV_PAR01",             "","","","",""         ,"","","",""  ,"","","",""   ,"","","",""    ,"","","","" ,  "","","","DIR","","","","",""})
+	
+	//Chamada da Funcao
+	For i:=1 to Len(aPerg)
+		If !dbSeek(cPerg+aPerg[i,2]) // Se não existe pergunta  BACA_53  cai na condionacl abaixo para incluir
+			RecLock("SX1",.T.)
+			For j:=1 to FCount()
+				If j <= Len(aPerg[i])
+					FieldPut(j,aPerg[i,j])
+				EndIf
+			Next
+			MsUnLock()
+		EndIf
+	Next
+
+	//Pergunte(cPerg,.F.)
+	
+Return( cPerg )   
